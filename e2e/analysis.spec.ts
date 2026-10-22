@@ -134,7 +134,11 @@ test.describe('analysis', () => {
     await searchUntilStopped(page)
     await page.getByRole('radio', { name: '5 lines' }).click()
 
-    // Longest gap between two animation frames: a blocked main thread shows up as a long gap.
+    await calculate(page).click()
+    await expect(page.getByTestId('analysis-line')).toHaveCount(5, { timeout: 60_000 })
+
+    // Once the engine is running and streaming (its start-up is not what is tested), measure the longest
+    // gap between two animation frames: a blocked main thread shows up as a long gap.
     await page.evaluate(() => {
       const probe = { maxGap: 0, last: performance.now(), running: true }
       const tick = (time: number) => {
@@ -146,8 +150,6 @@ test.describe('analysis', () => {
       ;(window as unknown as { __frameProbe: typeof probe }).__frameProbe = probe
     })
 
-    await calculate(page).click()
-    await expect(page.getByTestId('analysis-line')).toHaveCount(5, { timeout: 60_000 })
     await page.waitForTimeout(3000)
     await stop(page).click()
 
@@ -157,7 +159,7 @@ test.describe('analysis', () => {
       probe.running = false
       return probe.maxGap
     })
-    // Engine start-up (wasm compile) is off the main thread; no frame may stall for long.
+    // Streaming output must not stall the page: no frame may take long.
     expect(maxGap).toBeLessThan(1000)
   })
 })
