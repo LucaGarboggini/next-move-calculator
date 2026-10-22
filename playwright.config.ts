@@ -8,6 +8,8 @@ const EXTERNAL_URL = process.env.E2E_BASE_URL
 
 export default defineConfig({
   testDir: './e2e',
+  // Searches wait up to 60 s for the engine; a shared CI runner needs the room.
+  timeout: CI ? 90_000 : 30_000,
   fullyParallel: true,
   forbidOnly: CI,
   retries: CI ? 2 : 0,
