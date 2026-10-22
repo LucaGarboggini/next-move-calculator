@@ -25,7 +25,8 @@ const LAYERS = {
   board: ['core'],
   ui: [],
   i18n: [],
-  state: ['core', 'engine', 'i18n'],
+  // `board` only for its theme catalogue, which the persisted settings validate against.
+  state: ['core', 'engine', 'i18n', 'board'],
   ...Object.fromEntries(FEATURES.map((f) => [`features/${f}`, LOWER])),
   app: [...LOWER, ...FEATURES.map((f) => `features/${f}`)],
 }
