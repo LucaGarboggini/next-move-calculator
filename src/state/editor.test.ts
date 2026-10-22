@@ -104,6 +104,23 @@ describe('editor store', () => {
     expect(fen()).toBe(STARTING_FEN)
   })
 
+  it('plays a whole line as one undo step, or nothing when a move is illegal', () => {
+    const line = [
+      { from: 'e2', to: 'e4' },
+      { from: 'e7', to: 'e5' },
+      { from: 'g1', to: 'f3' },
+    ] as const
+    expect(store().playMoves(line)).toBe(true)
+    expect(documentPgn(store().document)).toContain('1. e4 e5 2. Nf3')
+    store().undo()
+    expect(store().document.game).toBeNull()
+    expect(fen()).toBe(STARTING_FEN)
+
+    expect(store().playMoves([line[0], { from: 'e4', to: 'e6' }])).toBe(false)
+    expect(store().playMoves([])).toBe(false)
+    expect(fen()).toBe(STARTING_FEN)
+  })
+
   it('cannot play from an illegal position', () => {
     store().clear()
     expect(store().playMove({ from: 'e2', to: 'e4' })).toBe(false)

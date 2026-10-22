@@ -2,7 +2,7 @@
 
 Open-source web app, inspired by nextchessmove.com: set up any chess position and get the best move(s), evaluation and lines, computed 100% in your browser on phone, tablet and desktop. No backend.
 
-> Status: design system, app shell, chess core, board, position editor and engine layer done. The analysis and saved-boards features are not implemented yet.
+> Status: design system, app shell, chess core, board, position editor, engine layer and analysis done. The saved-boards feature is not implemented yet.
 
 ## Requirements
 
@@ -48,7 +48,7 @@ src/
   board/     BoardView interface, chessground adapter
   ui/        design system: tokens, primitives, layout (shadcn/ui)
   i18n/      translations (en, pt-BR) and locale detection
-  state/     Zustand stores (theme, locale: persisted and versioned; editor document)
+  state/     Zustand stores (theme, locale, analysis settings: persisted and versioned; editor document; analysis session)
   features/  editor, analysis, settings, saved-boards
   app/       shell, providers, panel registry
 ```
@@ -92,6 +92,15 @@ See [ADR 0008](docs/adr/0008-engine-layer.md).
 ## Position editor
 
 `src/features/editor/` fills the board slot (`EditorBoard`) and registers three panels (position, FEN/PGN, moves). Two modes: **Edit position** (spare-piece palette, tap-to-place and eraser tools, drag pieces around, drop them off the board to delete, Delete key; side to move, castling rights, en passant square; start, clear, flip, undo, redo) and **Play moves** (legal moves only, building a move list you can step through). Paste a FEN or PGN into the FEN box to load it, copy the FEN or PGN back out. An invalid position is still shown, with every reason listed (and translated), and cannot be analyzed or played from: `useEditorSnapshot().position` is defined exactly when a position is legal, which is what the analysis feature will consume. See [ADR 0007](docs/adr/0007-position-editor.md).
+
+## Analysis
+
+`src/features/analysis/` registers two panels: **Analysis** (Calculate/Stop, evaluation from White's point of view as `+0.35` or `#3`, an eval bar, the best move, depth, speed, nodes and time, and the engine's lines in SAN) and **Search settings**. The best move is drawn on the board as an arrow, with fainter thin arrows for the other lines. Pick any move in a line, or the best move, to play it on the board (as one undo step).
+
+- Limits: time 1–60 s or until stopped, optional depth (whichever is reached first ends the search), 1–5 lines. Threads and hash memory are offered within what the browser and device allow (no threads control without cross-origin isolation). Settings are remembered and apply to the next calculation.
+- Recalculating is manual: changing the position (or playing a move) clears the analysis and stops any search; press Calculate again. A search is stopped when the tab goes to the background and can be restarted.
+- Output is throttled to 10 updates a second so a phone stays smooth; the engine runs in a worker.
+- The board and the analysis meet only in `app/AnalysisBoard.tsx` (`EditorBoard` takes an `arrows` prop), because features do not import each other. See [ADR 0009](docs/adr/0009-analysis-feature.md).
 
 ## Design system
 

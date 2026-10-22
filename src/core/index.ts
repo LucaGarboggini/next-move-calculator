@@ -66,5 +66,5 @@ export {
   type MoveHistory,
 } from './history'
 export { makePgn, parsePgn, type GameResult, type MakePgnOptions, type PgnGame } from './pgn'
-export { formatEval, toWhiteScore, type Score, type WhiteScore } from './eval'
+export { formatEval, toWhiteScore, whiteShare, type Score, type WhiteScore } from './eval'
 export { importText, type ImportedPosition } from './import'

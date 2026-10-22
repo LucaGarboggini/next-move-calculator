@@ -1,11 +1,16 @@
 import { useMemo } from 'react'
-import { Board, type BoardMode } from '@/board'
+import { Board, type BoardArrow, type BoardMode } from '@/board'
 import { BoardFrame } from '@/ui'
 import { useEditorSnapshot, useEditorStore } from '@/state'
 import { useBoardHandle } from './board-handle'
 
+export interface EditorBoardProps {
+  /** Drawn over the board, e.g. engine moves; the composition root decides where they come from. */
+  arrows?: readonly BoardArrow[]
+}
+
 /** The board slot: edits the position, or plays legal moves, depending on the editor mode. */
-export function EditorBoard() {
+export function EditorBoard({ arrows }: EditorBoardProps) {
   const handle = useBoardHandle()
   const { document, orientation, mode, tool } = useEditorStore()
   const setPieces = useEditorStore((s) => s.setPieces)
@@ -34,6 +39,7 @@ export function EditorBoard() {
         destinations={destinations}
         lastMove={lastEntry && [lastEntry.move.from, lastEntry.move.to]}
         check={position?.isCheck ? position.turn : undefined}
+        arrows={arrows}
         editTool={mode === 'edit' ? tool : null}
         onEdit={setPieces}
         onMove={playMove}
