@@ -58,19 +58,24 @@ export function EngineSizeSetting({ capabilities }: EngineSizeSettingProps) {
         }}
       >
         {ENGINE_SIZES.map((size) => (
-          <div key={size} className="flex items-start gap-3 rounded-md border border-border p-3">
+          <Label
+            key={size}
+            htmlFor={`${id}-${size}`}
+            className="min-h-touch items-start gap-3 rounded-md border border-border p-3"
+          >
             <RadioGroupItem
               value={size}
               id={`${id}-${size}`}
+              aria-labelledby={`${id}-${size}-label`}
               aria-describedby={`${id}-${size}-hint`}
             />
-            <div className="flex flex-col gap-0.5">
-              <Label htmlFor={`${id}-${size}`}>{t(`engine.${size}`)}</Label>
-              <p id={`${id}-${size}-hint`} className="text-xs text-muted-foreground">
+            <span className="flex flex-col gap-0.5">
+              <span id={`${id}-${size}-label`}>{t(`engine.${size}`)}</span>
+              <span id={`${id}-${size}-hint`} className="text-xs font-normal text-muted-foreground">
                 {t(`engine.${size}Hint`, sizeOf(size))}
-              </p>
-            </div>
-          </div>
+              </span>
+            </span>
+          </Label>
         ))}
       </RadioGroup>
       <p className="text-xs text-muted-foreground">{t('engine.appliesNext')}</p>

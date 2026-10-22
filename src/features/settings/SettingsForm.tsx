@@ -14,12 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
   Separator,
-  Switch,
-  ToggleGroup,
-  ToggleGroupItem,
 } from '@/ui'
 import { EngineSizeSetting } from './EngineSizeSetting'
 import { SETTINGS_NAMESPACE } from './i18n'
+import { SwitchRow } from './SwitchRow'
 import { LanguageSelect } from './LanguageSelect'
 import { ThemeToggle } from './ThemeToggle'
 
@@ -113,37 +111,31 @@ export function SettingsForm({ capabilities }: SettingsFormProps) {
       <Separator />
 
       <Section title={t('sections.board')}>
-        <div className="flex flex-col gap-2">
-          <Label id={`${id}-notation`}>{t('notation.label')}</Label>
-          <ToggleGroup
-            type="single"
-            variant="outline"
-            aria-labelledby={`${id}-notation`}
+        <Field id={`${id}-notation`} label={t('notation.label')}>
+          <Select
             value={settings.notation}
-            // Pressing the active item again reports ''; one notation is always chosen.
             onValueChange={(value) =>
               isOneOf(NOTATIONS, value) && settings.update({ notation: value })
             }
-            className="w-full flex-wrap"
           >
-            {NOTATIONS.map((notation) => (
-              <ToggleGroupItem key={notation} value={notation} className="flex-1">
-                {t(`notation.${notation}`)}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
-        </div>
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex flex-col gap-0.5">
-            <Label htmlFor={`${id}-queen`}>{t('autoQueen.label')}</Label>
-            <p className="text-xs text-muted-foreground">{t('autoQueen.hint')}</p>
-          </div>
-          <Switch
-            id={`${id}-queen`}
-            checked={settings.autoQueen}
-            onCheckedChange={(autoQueen) => settings.update({ autoQueen })}
-          />
-        </div>
+            <SelectTrigger aria-labelledby={`${id}-notation`}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {NOTATIONS.map((notation) => (
+                <SelectItem key={notation} value={notation}>
+                  {t(`notation.${notation}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
+        <SwitchRow
+          label={t('autoQueen.label')}
+          hint={t('autoQueen.hint')}
+          checked={settings.autoQueen}
+          onCheckedChange={(autoQueen) => settings.update({ autoQueen })}
+        />
       </Section>
 
       <Separator />
@@ -155,17 +147,12 @@ export function SettingsForm({ capabilities }: SettingsFormProps) {
       <Separator />
 
       <Section title={t('sections.keyboard')}>
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex flex-col gap-0.5">
-            <Label htmlFor={`${id}-shortcuts`}>{t('shortcuts.label')}</Label>
-            <p className="text-xs text-muted-foreground">{t('shortcuts.hint')}</p>
-          </div>
-          <Switch
-            id={`${id}-shortcuts`}
-            checked={settings.shortcuts}
-            onCheckedChange={(shortcuts) => settings.update({ shortcuts })}
-          />
-        </div>
+        <SwitchRow
+          label={t('shortcuts.label')}
+          hint={t('shortcuts.hint')}
+          checked={settings.shortcuts}
+          onCheckedChange={(shortcuts) => settings.update({ shortcuts })}
+        />
       </Section>
 
       <div className="flex justify-end">

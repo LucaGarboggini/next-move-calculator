@@ -35,7 +35,8 @@ describe('SettingsForm', () => {
     render(<SettingsForm capabilities={DESKTOP} />)
     const user = userEvent.setup()
 
-    await user.click(screen.getByRole('radio', { name: 'Figurine (♘f3)' }))
+    await user.click(screen.getByRole('combobox', { name: 'Move notation' }))
+    await user.click(screen.getByRole('option', { name: 'Figurine (♘f3)' }))
     expect(useSettings.getState().notation).toBe('figurine')
 
     await user.click(screen.getByRole('switch', { name: 'Always promote to a queen' }))
@@ -48,12 +49,6 @@ describe('SettingsForm', () => {
     await user.click(screen.getByRole('combobox', { name: 'Pieces' }))
     await user.click(screen.getByRole('option', { name: 'Text symbols' }))
     expect(useSettings.getState().pieceTheme).toBe('glyph')
-  })
-
-  it('keeps the notation when the chosen one is pressed again', async () => {
-    render(<SettingsForm capabilities={DESKTOP} />)
-    await userEvent.click(screen.getByRole('radio', { name: 'Standard (Nf3)' }))
-    expect(useSettings.getState().notation).toBe('san')
   })
 
   it('turns keyboard shortcuts off and on', async () => {
