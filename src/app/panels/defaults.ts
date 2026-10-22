@@ -1,7 +1,12 @@
+import { lazy } from 'react'
 import { AnalysisPanel, SearchSettingsPanel } from '@/features/analysis'
 import { FenPanel, MovesPanel, PositionPanel } from '@/features/editor'
-import { SavedBoardsPanel } from '@/features/saved-boards'
 import { registerPanel } from './registry'
+
+// Below the fold and not needed to calculate: loaded after the first paint (ADR 0011).
+const SavedBoardsPanel = lazy(() =>
+  import('@/features/saved-boards').then((m) => ({ default: m.SavedBoardsPanel })),
+)
 
 /** Composition point: features add their panels here with `registerPanel`. */
 export function registerDefaultPanels(): void {

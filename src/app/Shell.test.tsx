@@ -1,4 +1,5 @@
 import { act, render, screen } from '@testing-library/react'
+import { lazy } from 'react'
 import { Shell } from './Shell'
 import { Providers } from './providers/Providers'
 import { clearPanels, registerPanel } from './panels/registry'
@@ -30,6 +31,19 @@ describe('Shell', () => {
       'href',
       '#board-area',
     )
+  })
+
+  it('shows a placeholder while a lazy panel loads, then the panel', async () => {
+    let finish: (module: { default: () => React.JSX.Element }) => void = () => undefined
+    const Lazy = lazy(() => new Promise<{ default: () => React.JSX.Element }>((r) => (finish = r)))
+    registerPanel({ id: 'lazy', order: 1, component: Lazy })
+    renderShell()
+    expect(screen.getByRole('complementary').querySelector('[aria-busy="true"]')).not.toBeNull()
+
+    await act(() => Promise.resolve(finish({ default: () => <p>loaded</p> })))
+
+    expect(await screen.findByText('loaded')).toBeInTheDocument()
+    expect(screen.getByRole('complementary').querySelector('[aria-busy="true"]')).toBeNull()
   })
 
   it('renders registered panels in order without editing the shell', () => {

@@ -9,6 +9,8 @@ const fenBox = (page: Page) => page.getByRole('textbox', { name: 'FEN or PGN' })
 async function tapSquare(page: Page, square: string) {
   const file = 'abcdefgh'.indexOf(square[0] ?? '')
   const rank = Number(square[1]) - 1
+  // Pressing a control below the board can leave the page scrolled; measure the board in place.
+  await board(page).evaluate((el) => el.scrollIntoView({ block: 'start', behavior: 'instant' }))
   const box = (await board(page).boundingBox())!
   await board(page).click({
     position: { x: ((file + 0.5) * box.width) / 8, y: ((7 - rank + 0.5) * box.height) / 8 },
