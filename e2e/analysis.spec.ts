@@ -130,7 +130,13 @@ test.describe('analysis', () => {
     await expect(board(page).locator('.cg-shapes line')).toHaveCount(0)
   })
 
-  test('the page keeps responding while a five-line search streams output', async ({ page }) => {
+  test('the page keeps responding while a five-line search streams output', async ({
+    page,
+    browserName,
+  }) => {
+    // Emulated WebKit on a shared CI runner draws a handful of frames a second whatever the
+    // page does, so a frame-rate probe says nothing there. Chromium and Firefox keep it honest.
+    test.skip(browserName === 'webkit', 'frame timing is not measurable on emulated WebKit')
     await searchUntilStopped(page)
     await page.getByRole('radio', { name: '5 lines' }).click()
 
