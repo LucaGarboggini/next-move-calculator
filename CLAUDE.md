@@ -21,12 +21,13 @@ Goal: open-source web app (portfolio) inspired by nextchessmove.com — user set
 
 ## Architecture
 
-Dependency direction: `app → features → (ui, board, state) → (engine, core)`. Lower layers never import higher ones; enforced by lint.
+Dependency direction: `app → features → (ui, board, state, i18n) → (engine, core)`. Lower layers never import higher ones; enforced by lint.
 
 - `core/` pure TS chess domain over chessops — no React, no DOM.
 - `engine/` `Engine` interface + Stockfish worker adapter + UCI client.
 - `board/` `BoardView` interface + chessground adapter + React wrapper.
 - `ui/` design system: tokens, themes, primitives, layout — no chess logic.
+- `i18n/` translations and locale detection; features register their own namespaces.
 - `state/` Zustand stores; persisted stores are versioned with migrations.
 - `features/` editor, analysis, settings, saved-boards — each self-contained with a public `index.ts`; features don't import each other.
 - `app/` shell, providers, composition.

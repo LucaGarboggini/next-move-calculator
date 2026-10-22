@@ -1,5 +1,10 @@
+import { Providers } from './providers/Providers'
 import { Shell } from './Shell'
 
 export function App() {
-  return <Shell />
+  return (
+    <Providers>
+      <Shell />
+    </Providers>
+  )
 }

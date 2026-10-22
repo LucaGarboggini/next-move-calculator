@@ -21,4 +21,6 @@ export const Outline: Story = { args: { variant: 'outline' } }
 export const Secondary: Story = { args: { variant: 'secondary' } }
 export const Ghost: Story = { args: { variant: 'ghost' } }
 export const Destructive: Story = { args: { variant: 'destructive' } }
+export const Small: Story = { args: { size: 'sm' } }
+export const Large: Story = { args: { size: 'lg' } }
 export const Disabled: Story = { args: { disabled: true } }

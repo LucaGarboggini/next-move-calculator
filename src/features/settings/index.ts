@@ -1,2 +1,3 @@
-// Public API of the "settings" feature. Features never import each other.
-export {}
+// Public API of the settings feature.
+export { LanguageSelect } from './LanguageSelect'
+export { ThemeToggle } from './ThemeToggle'

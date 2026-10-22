@@ -26,6 +26,8 @@ describe('layer-boundary lint rules', () => {
     ['ui imports core', 'src/ui/x.ts', "import '@/core'"],
     ['engine imports state', 'src/engine/x.ts', "import '@/state'"],
     ['board imports engine', 'src/board/x.ts', "import '@/engine'"],
+    ['i18n imports state', 'src/i18n/x.ts', "import '@/state'"],
+    ['ui imports i18n', 'src/ui/x.ts', "import '@/i18n'"],
     ['state imports ui', 'src/state/x.ts', "import '@/ui'"],
     ['lower layer imports features', 'src/ui/x.ts', "import '@/features/editor'"],
     ['lower layer imports app', 'src/state/x.ts', "import '@/app'"],
@@ -58,6 +60,8 @@ describe('layer-boundary lint rules', () => {
       "import '@/ui'\nimport '@/core'\nimport '@/state'\nimport '@/board'",
     ],
     ['app imports a feature public API', 'src/app/x.ts', "import '@/features/editor'"],
+    ['state imports i18n', 'src/state/x.ts', "import '@/i18n'"],
+    ['feature imports i18n', 'src/features/settings/x.ts', "import '@/i18n'"],
     ['engine imports core', 'src/engine/x.ts', "import '@/core'"],
     ['module imports its own internals', 'src/ui/x.ts', "import '@/ui/lib/utils'"],
     [

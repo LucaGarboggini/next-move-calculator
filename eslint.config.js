@@ -10,21 +10,22 @@ import tseslint from 'typescript-eslint'
 /**
  * Layer boundaries (see docs/adr/0002-layered-architecture.md).
  *
- *   app → features → (ui, board, state) → (engine, core)
+ *   app → features → (ui, board, state, i18n) → (engine, core)
  *
  * `LAYERS` maps each module to the modules it may import. Everything else is
  * banned, as are deep imports into another module (only its public index.ts is
  * allowed) and third-party libraries outside their adapter.
  */
 const FEATURES = ['editor', 'analysis', 'settings', 'saved-boards']
-const LOWER = ['core', 'engine', 'board', 'ui', 'state']
+const LOWER = ['core', 'engine', 'board', 'ui', 'state', 'i18n']
 
 const LAYERS = {
   core: [],
   engine: ['core'],
   board: ['core'],
   ui: [],
-  state: ['core', 'engine'],
+  i18n: [],
+  state: ['core', 'engine', 'i18n'],
   ...Object.fromEntries(FEATURES.map((f) => [`features/${f}`, LOWER])),
   app: [...LOWER, ...FEATURES.map((f) => `features/${f}`)],
 }

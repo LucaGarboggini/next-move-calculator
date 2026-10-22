@@ -1,21 +1,57 @@
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import { Shell } from './Shell'
+import { Providers } from './providers/Providers'
 import { clearPanels, registerPanel } from './panels/registry'
+import { useThemeStore } from '@/state'
+
+const renderShell = () =>
+  render(
+    <Providers>
+      <Shell />
+    </Providers>,
+  )
 
 describe('Shell', () => {
   beforeEach(clearPanels)
 
   it('exposes board and panel areas', () => {
-    render(<Shell />)
+    renderShell()
     expect(screen.getByRole('main')).toBeInTheDocument()
     expect(screen.getByRole('complementary')).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Empty chess board' })).toBeInTheDocument()
+  })
+
+  it('has a header with title and global controls plus a skip link', () => {
+    renderShell()
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Next-Move Calculator')
+    expect(screen.getByRole('radiogroup', { name: 'Theme' })).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: 'Language' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Skip to board' })).toHaveAttribute(
+      'href',
+      '#board-area',
+    )
   })
 
   it('renders registered panels in order without editing the shell', () => {
     registerPanel({ id: 'b', order: 2, component: () => <p>second</p> })
     registerPanel({ id: 'a', order: 1, component: () => <p>first</p> })
-    render(<Shell />)
-    const text = screen.getByRole('complementary').textContent
-    expect(text).toBe('firstsecond')
+    renderShell()
+    expect(screen.getByRole('complementary').textContent).toBe('firstsecond')
+  })
+
+  it('picks up panels registered after the first render', () => {
+    renderShell()
+    expect(screen.getByRole('complementary')).toBeEmptyDOMElement()
+    act(() => registerPanel({ id: 'late', order: 1, component: () => <p>late</p> }))
+    expect(screen.getByRole('complementary')).toHaveTextContent('late')
+  })
+
+  it('applies the theme preference to <html>', () => {
+    renderShell()
+    expect(document.documentElement).not.toHaveClass('dark')
+    act(() => useThemeStore.getState().setPreference('dark'))
+    expect(document.documentElement).toHaveClass('dark')
+    act(() => useThemeStore.getState().setPreference('light'))
+    expect(document.documentElement).not.toHaveClass('dark')
   })
 })
