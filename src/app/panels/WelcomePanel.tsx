@@ -1,7 +1,7 @@
 import { Card, CardDescription, CardHeader, CardTitle } from '@/ui'
 import { useTranslation } from '@/i18n'
 
-/** Placeholder until the editor and analysis features register their own panels. */
+/** Example panel for the shell stories; the app registers the editor's panels instead. */
 export function WelcomePanel() {
   const { t } = useTranslation()
   return (

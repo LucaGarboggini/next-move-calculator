@@ -40,7 +40,7 @@ export function AppLayout({ header, board, panels, className }: AppLayoutProps) 
         </main>
         <aside
           data-slot="panel-area"
-          className="-m-1 flex flex-col gap-4 p-1 split:w-panel split:shrink-0 split:overflow-y-auto"
+          className="-m-1 flex flex-col gap-4 p-1 *:shrink-0 split:w-panel split:shrink-0 split:overflow-y-auto"
         >
           {panels}
         </aside>

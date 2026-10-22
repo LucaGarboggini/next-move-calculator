@@ -11,7 +11,7 @@ export const ptBR: Widen<Messages> = {
     welcome: {
       title: 'Boas-vindas',
       description:
-        'Monte qualquer posição e receba os melhores lances, a avaliação e as variantes, calculados no seu navegador. Os painéis de edição e análise chegam nas próximas versões.',
+        'Monte qualquer posição e receba os melhores lances, a avaliação e as variantes, calculados no seu navegador. A análise chega numa próxima versão.',
     },
   },
   settings: {

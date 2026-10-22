@@ -8,7 +8,7 @@ export const en = {
     welcome: {
       title: 'Welcome',
       description:
-        'Set up any position and get the best moves, evaluation and lines, computed in your browser. The editor and analysis panels arrive in upcoming releases.',
+        'Set up any position and get the best moves, evaluation and lines, computed in your browser. Analysis arrives in an upcoming release.',
     },
   },
   settings: {

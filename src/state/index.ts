@@ -16,3 +16,16 @@ export {
   useLocaleStore,
   type LocalePreference,
 } from './locale'
+export {
+  analyzablePosition,
+  documentFen,
+  documentPgn,
+  isSameTool,
+  resetEditorStore,
+  useEditorSnapshot,
+  useEditorStore,
+  type EditorDocument,
+  type EditorMode,
+  type EditorSnapshot,
+  type EditorTool,
+} from './editor'
