@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { parseFen, type Color } from '@/core'
-import { createMigrate, type Migrations, type PersistedState } from './migrate'
+import { createMerge, createMigrate, type Migrations, type PersistedState } from './migrate'
 
 export const SAVED_BOARDS_KEY = 'nmc-saved-boards'
 /**
@@ -119,6 +119,7 @@ export const useSavedBoards = create<SavedBoardsState>()(
       version: SAVED_BOARDS_VERSION,
       partialize: ({ boards }) => ({ boards }),
       migrate: migrateSavedBoards,
+      merge: createMerge(sanitizeSavedBoards),
     },
   ),
 )

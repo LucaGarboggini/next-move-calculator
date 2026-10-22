@@ -10,7 +10,7 @@ import {
 } from '@/board'
 import { DEFAULT_NOTATION, isNotation, type Notation } from '@/core'
 import type { EngineSize } from '@/engine'
-import { createMigrate, type PersistedState } from './migrate'
+import { createMerge, createMigrate, type PersistedState } from './migrate'
 
 export const ENGINE_SIZES = ['lite', 'full'] as const satisfies readonly EngineSize[]
 
@@ -90,6 +90,7 @@ export const useSettings = create<SettingsState>()(
       version: SETTINGS_VERSION,
       partialize: pickSettings,
       migrate: migrateSettings,
+      merge: createMerge(sanitizeSettings),
     },
   ),
 )

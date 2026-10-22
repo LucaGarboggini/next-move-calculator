@@ -1,7 +1,8 @@
-import type { ReactNode } from 'react'
+import { Suspense, type ReactNode } from 'react'
 import { SettingsControls } from '@/features/settings'
 import { useTranslation } from '@/i18n'
 import { AppHeader, AppLayout } from '@/ui'
+import { PanelFallback } from './PanelFallback'
 import { StartingBoard } from './StartingBoard'
 import { usePanels } from './panels/registry'
 
@@ -26,7 +27,9 @@ export function Shell({ board = <StartingBoard /> }: ShellProps) {
         header={<AppHeader title={t('app.title')} actions={<SettingsControls />} />}
         board={board}
         panels={panels.map(({ id, component: Panel }) => (
-          <Panel key={id} />
+          <Suspense key={id} fallback={<PanelFallback />}>
+            <Panel />
+          </Suspense>
         ))}
       />
     </>

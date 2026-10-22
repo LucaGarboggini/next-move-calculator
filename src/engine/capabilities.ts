@@ -4,7 +4,11 @@ import type { EngineBounds, EngineSettings } from './types'
 export interface EngineCapabilities {
   readonly crossOriginIsolated: boolean
   readonly sharedMemory: boolean
-  /** Multi-threaded WebAssembly needs both cross-origin isolation and SharedArrayBuffer. */
+  /**
+   * Multi-threaded WebAssembly needs both cross-origin isolation and SharedArrayBuffer. WebKit
+   * (Safari, every iOS browser) always gets the single-threaded engine: the threaded one can hang
+   * there (ADR 0014).
+   */
   readonly threads: boolean
   readonly hardwareConcurrency: number
   /** `navigator.deviceMemory` in GB (Chromium only, capped at 8). */
@@ -44,6 +48,12 @@ function isMobile(env: CapabilityEnvironment): boolean {
   return env.platform === 'MacIntel' && (env.maxTouchPoints ?? 0) > 1
 }
 
+/** Safari and every iOS browser. Chromium browsers also say "AppleWebKit", but with "Chrome/". */
+function isWebKit(env: CapabilityEnvironment): boolean {
+  const userAgent = env.userAgent ?? ''
+  return /AppleWebKit\//.test(userAgent) && !/Chrome\/|Chromium\//.test(userAgent)
+}
+
 export function detectCapabilities(
   env: CapabilityEnvironment = readEnvironment(),
 ): EngineCapabilities {
@@ -52,7 +62,7 @@ export function detectCapabilities(
   return {
     crossOriginIsolated,
     sharedMemory,
-    threads: crossOriginIsolated && sharedMemory,
+    threads: crossOriginIsolated && sharedMemory && !isWebKit(env),
     hardwareConcurrency: Math.max(1, Math.floor(env.hardwareConcurrency ?? 1)),
     ...(env.deviceMemory !== undefined && { deviceMemoryGb: env.deviceMemory }),
     mobile: isMobile(env),

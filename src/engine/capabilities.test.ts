@@ -33,6 +33,29 @@ describe('detectCapabilities', () => {
     expect(detectCapabilities({}).threads).toBe(false)
   })
 
+  it('keeps WebKit (Safari, every iOS browser) on one thread, even cross-origin isolated', () => {
+    const webkit = [
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/130.0.6723.90 Mobile/15E148 Safari/604.1',
+    ]
+    for (const userAgent of webkit) {
+      const caps = detectCapabilities({ ...DESKTOP, userAgent })
+      expect(caps.crossOriginIsolated).toBe(true)
+      expect(caps.threads).toBe(false)
+      expect(engineBounds(caps).maxThreads).toBe(1)
+    }
+    const others = [
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0',
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:132.0) Gecko/20100101 Firefox/132.0',
+      PHONE.userAgent,
+    ]
+    for (const userAgent of others) {
+      expect(detectCapabilities({ ...DESKTOP, userAgent }).threads).toBe(true)
+    }
+  })
+
   it('detects phones, tablets and iPadOS posing as a Mac', () => {
     expect(detectCapabilities(DESKTOP).mobile).toBe(false)
     expect(detectCapabilities(PHONE).mobile).toBe(true)
@@ -95,6 +118,15 @@ describe('fullEngineWarnings', () => {
     ])
     expect(
       fullEngineWarnings(detectCapabilities({ ...DESKTOP, crossOriginIsolated: false })),
+    ).toEqual(['singleThreaded'])
+    expect(
+      fullEngineWarnings(
+        detectCapabilities({
+          ...DESKTOP,
+          userAgent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15',
+        }),
+      ),
     ).toEqual(['singleThreaded'])
   })
 })

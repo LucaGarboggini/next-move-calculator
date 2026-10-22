@@ -8,14 +8,17 @@
   --popover-foreground: oklch(0.96 0.005 100);
   --primary: oklch(0.78 0.13 155);
   --primary-foreground: oklch(0.2 0.04 155);
+  --primary-hover: oklch(0.72 0.13 155);
   --secondary: oklch(0.28 0.008 100);
   --secondary-foreground: oklch(0.96 0.005 100);
+  --secondary-hover: oklch(0.33 0.01 100);
   --muted: oklch(0.28 0.008 100);
   --muted-foreground: oklch(0.74 0.01 100);
   --accent: oklch(0.32 0.04 155);
   --accent-foreground: oklch(0.95 0.02 155);
   --destructive: oklch(0.72 0.17 25);
   --destructive-foreground: oklch(0.2 0.04 25);
+  --destructive-hover: oklch(0.66 0.17 25);
   --success: oklch(0.75 0.14 150);
   --success-foreground: oklch(0.2 0.05 150);
   --warning: oklch(0.82 0.14 82);

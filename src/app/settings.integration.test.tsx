@@ -29,7 +29,7 @@ describe('settings in the app', () => {
     render(<App />)
     const user = userEvent.setup()
     await user.click(screen.getByRole('button', { name: 'Settings' }))
-    await user.click(screen.getByRole('combobox', { name: 'Board colors' }))
+    await user.click(await screen.findByRole('combobox', { name: 'Board colors' }))
     await user.click(screen.getByRole('option', { name: 'Blue' }))
     expect(board()).toHaveAttribute('data-board-theme', 'blue')
   })
@@ -96,7 +96,7 @@ describe('keyboard shortcuts in the app', () => {
   it('lists them all in the help dialog, opened with "?"', async () => {
     render(<App />)
     await userEvent.setup().keyboard('?')
-    const dialog = screen.getByRole('dialog', { name: 'Keyboard shortcuts' })
+    const dialog = await screen.findByRole('dialog', { name: 'Keyboard shortcuts' })
     for (const label of [
       'Flip the board',
       'Undo',

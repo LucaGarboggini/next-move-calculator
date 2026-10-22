@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Color, Move, WhiteScore } from '@/core'
+import { createMerge } from './migrate'
 
 // --- Settings (persisted) ---------------------------------------------------------------------
 
@@ -88,6 +89,7 @@ export const useAnalysisSettings = create<AnalysisSettingsState>()(
       version: VERSION,
       partialize: pickSettings,
       migrate: migrateAnalysisSettings,
+      merge: createMerge(sanitizeAnalysisSettings),
     },
   ),
 )

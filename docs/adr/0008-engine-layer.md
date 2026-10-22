@@ -1,6 +1,6 @@
 # 0008 — Engine layer: `Engine` interface, UCI client, Stockfish worker
 
-Status: accepted
+Status: accepted; amended by [0014](0014-single-threaded-engine-on-webkit.md) (no threads on WebKit)
 
 ## Context
 

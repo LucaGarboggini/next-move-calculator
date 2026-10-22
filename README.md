@@ -2,38 +2,95 @@
 
 Open-source web app, inspired by nextchessmove.com: set up any chess position and get the best move(s), evaluation and lines, computed 100% in your browser on phone, tablet and desktop. No backend.
 
-> Status: design system, app shell, chess core, board, position editor, engine layer and analysis done. The saved-boards feature is not implemented yet.
+## Features
+
+- **Set up any position**: spare-piece palette, drag and drop, tap-to-place, eraser, side to move, castling rights, en passant; or paste a FEN or PGN. Illegal positions are shown with every reason and cannot be analyzed.
+- **Best moves, evaluation and lines** from Stockfish 19 running in a Web Worker: eval from White's point of view (`+0.35`, mates as `#3`), 1–5 lines, depth and time limits, arrows on the board, click any move to play it.
+- **Play moves** on the board (legal moves only), step through the move list, undo and redo, import and export PGN.
+- **Lite or Full engine**: Lite (~2 MB) by default; Full (~94 MB, strongest) is opt-in and cached after the first download. Threads and hash follow the device.
+- **Saved boards**, settings (language, theme, board colors, piece style, notation, auto-queen) and keyboard shortcuts, remembered in the browser with versioned migrations.
+- **English and Brazilian Portuguese**, light and dark themes.
+- **Phone, tablet and desktop**, portrait and landscape; touch, mouse, pen and keyboard. 100% client-side: no backend, no analytics, no request leaves the page.
 
 ## Requirements
 
 - Node.js 24 (LTS), see `.nvmrc`
 - npm
 
-## Getting started
+## How to run
 
 ```sh
 npm install
-npm run dev        # http://localhost:5173
+npm run dev        # development: http://localhost:5173
 ```
 
 `npm install` also copies the Stockfish builds into `public/engine/` (git-ignored). Set `ENGINE_SIZES=lite` to skip the ~190 MB of Full builds.
 
+### Production build, locally
+
+```sh
+npm run build      # typecheck + static bundle in dist/
+npm run preview    # serves dist/ with COOP/COEP: http://localhost:4173
+```
+
+### On another device on your network (a tablet, say)
+
+`npm run preview` (and `npm run dev`) listen on every interface and print the address:
+
+```
+  ➜  Local:   http://localhost:4173/
+  ➜  Network: http://192.168.1.20:4173/
+```
+
+Open the **Network** address on the tablet, on the same Wi-Fi. Two modes:
+
+| Command               | Tablet opens | What you get                                                                                                                                                        |
+| --------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run preview`     | `http://…`   | Everything, with a single-threaded engine. Browsers allow threads, Cache Storage and copy-to-clipboard only in a secure context.                                    |
+| `npm run preview:lan` | `https://…`  | Everything, multi-threaded (except on Safari and iOS, which always use one thread), Full engine cached. Self-signed certificate: accept the browser's warning once. |
+
+If the tablet cannot connect, check the computer's firewall and that both devices are on the same network (guest Wi-Fi often isolates clients). See [ADR 0013](docs/adr/0013-local-release-and-lan.md).
+
 ## Scripts
 
-| Script                                  | What it does                                                                                                |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `npm run dev` / `preview`               | Dev / production-preview server (both send COOP/COEP)                                                       |
-| `npm run engine:fetch`                  | Copy the Stockfish builds into `public/engine/` (runs on install, dev and build)                            |
-| `npm run build`                         | Typecheck and build the static bundle into `dist/`                                                          |
-| `npm run lint`                          | ESLint, including layer-boundary rules                                                                      |
-| `npm run typecheck`                     | `tsc -b` (strict)                                                                                           |
-| `npm run format` / `format:check`       | Prettier                                                                                                    |
-| `npm test` / `test:watch`               | Vitest unit and component tests                                                                             |
-| `npm run test:e2e`                      | Playwright on desktop Chromium/Firefox/WebKit and phone/tablet profiles (run `npx playwright install` once) |
-| `npm run storybook` / `build-storybook` | Component catalog                                                                                           |
-| `npm run check`                         | lint + typecheck + test + build                                                                             |
+| Script                                  | What it does                                                                                                                                                             |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npm run dev` / `preview`               | Dev / production-preview server (both send COOP/COEP)                                                                                                                    |
+| `npm run engine:fetch`                  | Copy the Stockfish builds into `public/engine/` (runs on install, dev and build)                                                                                         |
+| `npm run build`                         | Typecheck and build the static bundle into `dist/`                                                                                                                       |
+| `npm run check:bundle`                  | Fails if the initial load of `dist/` is over the 250 kB gzip budget or loads the engine with the page                                                                    |
+| `npm run preview:lan`                   | Preview over HTTPS (self-signed) for a secure context on other devices                                                                                                   |
+| `npm run lint`                          | ESLint, including layer-boundary rules                                                                                                                                   |
+| `npm run typecheck`                     | `tsc -b` (strict)                                                                                                                                                        |
+| `npm run format` / `format:check`       | Prettier                                                                                                                                                                 |
+| `npm test` / `test:watch`               | Vitest unit and component tests                                                                                                                                          |
+| `npm run test:e2e`                      | Playwright on desktop Chromium/Firefox/WebKit and phone/tablet profiles (run `npx playwright install` once); `E2E_BASE_URL=<url>` tests a server that is already running |
+| `npm run storybook` / `build-storybook` | Component catalog                                                                                                                                                        |
+| `npm run check`                         | lint + typecheck + test + build                                                                                                                                          |
 
 ## Architecture
+
+```mermaid
+flowchart TD
+  app["app: shell, providers, panel registry"] --> features
+  subgraph features["features (never import each other)"]
+    editor
+    analysis
+    settings
+    saved["saved-boards"]
+  end
+  features --> ui["ui: tokens, primitives, layout"]
+  features --> board["board: BoardView, chessground adapter"]
+  features --> state["state: Zustand, versioned persistence"]
+  features --> i18n["i18n: en, pt-BR"]
+  features --> engine["engine: Engine, UCI client, Stockfish worker"]
+  board --> core["core: chess domain over chessops"]
+  state --> core
+  engine --> core
+  board -.-> chessground[(chessground)]
+  core -.-> chessops[(chessops)]
+  engine -.-> stockfish[(Stockfish 19 wasm)]
+```
 
 ```
 app → features → (ui, board, state, i18n) → (engine, core)
@@ -69,7 +126,7 @@ See [ADR 0005](docs/adr/0005-chess-core-domain.md). Standard chess only.
 `src/engine/` exports the `Engine` interface and `createStockfishEngine({ size: 'lite' | 'full' })`; features never see Stockfish, UCI or workers.
 
 ```ts
-const engine = createStockfishEngine() // Lite; threads when cross-origin isolated
+const engine = createStockfishEngine() // Lite; threads when cross-origin isolated (not on WebKit)
 const search = engine.analyze(position, { limits: { depth: 20 }, multiPv: 3 })
 for await (const event of search.events) {
   if (event.type === 'info')
@@ -80,7 +137,7 @@ for await (const event of search.events) {
 
 - Every search has an id that is on all its events; a new `analyze` stops the old search and waits for it, so a stale result can never appear. `superseded` results must be ignored.
 - `engine.subscribe` reports status and download progress (`LoadProgress`); Full (~94 MB) is downloaded once and cached in Cache Storage.
-- `detectCapabilities`, `recommendedSettings` and `fullEngineWarnings` give device-aware defaults; `engine.configure({ threads, hashMb })` applies at the next search.
+- `detectCapabilities`, `recommendedSettings` and `fullEngineWarnings` give device-aware defaults; `engine.configure({ threads, hashMb })` applies at the next search. Safari and every iOS browser (WebKit) always get the single-threaded build, because the threaded one can hang there ([ADR 0014](docs/adr/0014-single-threaded-engine-on-webkit.md)).
 - To add an engine, implement `Engine`, or for any UCI engine give `UciEngine` a `connect()` that returns a `UciTransport`.
 
 See [ADR 0008](docs/adr/0008-engine-layer.md).
@@ -133,6 +190,17 @@ Call it from `registerDefaultPanels` in `src/app/panels/defaults.ts`.
 
 Every string goes through `useTranslation()`. Core strings are in `src/i18n/locales`; a feature registers its own namespace with `registerTranslations`. English is the default; Brazilian Portuguese (pt-BR) is complete, and `src/app/translations.test.ts` fails if any namespace misses a key, a `{{placeholder}}` or a translation. To add a language, add a locale file per namespace and list it in `src/i18n/locales.ts`. See [ADR 0004](docs/adr/0004-i18n.md).
 
+## Quality
+
+- **Tests**: unit and component tests (Vitest, Testing Library), including the layer rules, design-token contrast and translations; end-to-end tests (Playwright) with the real engine on the production build across desktop Chromium/Firefox/WebKit, phone and tablet profiles — editor, analysis, settings, saved boards, the full set-up → calculate → play → save flow, and a keyboard-only flow.
+- **Accessibility**: axe (WCAG 2.x A/AA) runs on the built app in light, dark, pt-BR and with dialogs open; Tab order, focus indicators and focus return are tested. Rationale and the problems the pass found: [ADR 0012](docs/adr/0012-accessibility-verification.md).
+- **Performance**: the engine downloads on the first Calculate, never with the page; dialogs and the saved-boards panel load on demand; `npm run check:bundle` holds the initial load (currently ~212 kB gzip) under 250 kB. See [ADR 0011](docs/adr/0011-loading-performance.md).
+- **CI** (GitHub Actions): format, lint, typecheck, unit tests, build, bundle budget, Storybook build, and the e2e suite.
+
+## Decisions
+
+Short ADRs in [`docs/adr/`](docs/adr/): [stack](docs/adr/0001-stack.md), [layers](docs/adr/0002-layered-architecture.md), [tokens and theming](docs/adr/0003-design-tokens-and-theming.md), [i18n](docs/adr/0004-i18n.md), [chess core](docs/adr/0005-chess-core-domain.md), [board](docs/adr/0006-board-layer.md), [editor](docs/adr/0007-position-editor.md), [engine](docs/adr/0008-engine-layer.md), [analysis](docs/adr/0009-analysis-feature.md), [settings and persistence](docs/adr/0010-settings-persistence-shortcuts.md), [loading performance](docs/adr/0011-loading-performance.md), [accessibility](docs/adr/0012-accessibility-verification.md), [local release and LAN](docs/adr/0013-local-release-and-lan.md), [single-threaded engine on WebKit](docs/adr/0014-single-threaded-engine-on-webkit.md).
+
 ## Hosting requirements
 
 The build is a static bundle. For multi-threaded Stockfish (`SharedArrayBuffer`) any host must serve every response with:
@@ -142,7 +210,14 @@ Cross-Origin-Opener-Policy: same-origin
 Cross-Origin-Embedder-Policy: require-corp
 ```
 
-Without these the app falls back to single-threaded mode. The host must also serve `engine/*.wasm` (up to ~99 MB per file; Full builds are in `dist/engine/`) and allow same-origin blob workers. Hosting itself is out of scope until the app is finished.
+Without these the app falls back to single-threaded mode (Safari and iOS always use it, see ADR 0014). Also:
+
+- **HTTPS** (or `localhost`): cross-origin isolation, Cache Storage (Full engine cache) and the clipboard need a secure context.
+- Serve `engine/*.wasm` as `application/wasm` (up to ~99 MB per file; Full builds are in `dist/engine/`) and `engine/*.js`; allow same-origin blob workers.
+- Serve `index.html` without long caching (assets under `assets/` are content-hashed and can be cached forever).
+- Everything is a same-origin static file: no server code, no CORS, no third-party origins (a CDN would also need `Cross-Origin-Resource-Policy`).
+
+Hosting itself is out of scope for the first release.
 
 ## License
 

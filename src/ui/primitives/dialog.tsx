@@ -44,12 +44,17 @@ function DialogContent({
   children,
   showCloseButton = true,
   closeLabel = 'Close',
+  onOpenAutoFocus,
+  onCloseAutoFocus,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean
   /** Accessible name of the close button; pass the translated text. */
   closeLabel?: string
 }) {
+  // Dialogs opened from state or a shortcut have no Trigger for Radix to return the focus to:
+  // remember what had the focus and give it back on close.
+  const opener = React.useRef<Element | null>(null)
   return (
     <DialogPortal>
       <DialogOverlay />
@@ -59,6 +64,19 @@ function DialogContent({
           'fixed top-1/2 left-1/2 z-modal grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
           className,
         )}
+        onOpenAutoFocus={(event) => {
+          opener.current = document.activeElement
+          onOpenAutoFocus?.(event)
+        }}
+        onCloseAutoFocus={(event) => {
+          onCloseAutoFocus?.(event)
+          const previous = opener.current
+          opener.current = null
+          if (event.defaultPrevented || !(previous instanceof HTMLElement)) return
+          if (!previous.isConnected || previous === document.body) return
+          event.preventDefault()
+          previous.focus()
+        }}
         {...props}
       >
         {children}

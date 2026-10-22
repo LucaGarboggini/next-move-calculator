@@ -38,3 +38,13 @@ export function createMigrate<T>({ version, migrations = {}, sanitize }: Migrate
     return sanitize(state)
   }
 }
+
+/**
+ * Builds the `merge` function of a Zustand `persist` store. Zustand calls `migrate` only when the
+ * stored version differs from the store's, so data saved under the current version would reach
+ * the store unchecked; this sends it through `sanitize` too. With nothing stored, nothing changes.
+ */
+export function createMerge<T extends object>(sanitize: (state: PersistedState) => T) {
+  return <S extends object>(persisted: unknown, current: S): S =>
+    persisted === undefined ? current : { ...current, ...sanitize(asObject(persisted)) }
+}
