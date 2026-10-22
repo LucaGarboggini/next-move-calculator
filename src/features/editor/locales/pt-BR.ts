@@ -1,0 +1,125 @@
+import type { EditorMessages } from './en'
+
+type Widen<T> = T extends string ? string : { [K in keyof T]: Widen<T[K]> }
+
+export const ptBR: Widen<EditorMessages> = {
+  panels: {
+    position: 'Posição',
+    fen: 'FEN e PGN',
+    moves: 'Lances',
+  },
+  mode: {
+    label: 'Modo',
+    edit: 'Editar posição',
+    play: 'Jogar lances',
+  },
+  palette: {
+    label: 'Peças',
+    hint: 'Escolha uma peça e toque nas casas para colocá-la, ou arraste-a para o tabuleiro. Arraste uma peça para fora do tabuleiro para removê-la.',
+    white: 'Peças brancas',
+    black: 'Peças pretas',
+    move: 'Mover peças',
+    erase: 'Apagar peças',
+  },
+  actions: {
+    label: 'Ações do tabuleiro',
+    start: 'Posição inicial',
+    clear: 'Limpar tabuleiro',
+    flip: 'Girar tabuleiro',
+    undo: 'Desfazer',
+    redo: 'Refazer',
+  },
+  options: {
+    turn: {
+      label: 'Lado a jogar',
+      white: 'Brancas jogam',
+      black: 'Pretas jogam',
+    },
+    castling: {
+      label: 'Direitos de roque',
+      white: {
+        kingSide: 'Brancas, roque curto (O-O)',
+        queenSide: 'Brancas, roque longo (O-O-O)',
+      },
+      black: {
+        kingSide: 'Pretas, roque curto (O-O)',
+        queenSide: 'Pretas, roque longo (O-O-O)',
+      },
+    },
+    enPassant: {
+      label: 'Casa de en passant',
+      none: 'Nenhuma',
+      unavailable: 'Disponível depois que um peão avança duas casas',
+    },
+  },
+  status: {
+    ready: 'Pronta para análise',
+    blocked: 'Esta posição ainda não pode ser analisada',
+    warnings: 'Posição incomum',
+    toMove: {
+      white: 'Brancas jogam',
+      black: 'Pretas jogam',
+    },
+    check: 'Xeque',
+    checkmate: 'Xeque-mate',
+    stalemate: 'Afogamento',
+    insufficientMaterial: 'Empate por material insuficiente',
+  },
+  fen: {
+    label: 'FEN ou PGN',
+    placeholder: 'Cole um FEN ou um PGN aqui',
+    load: 'Carregar',
+    copyFen: 'Copiar FEN',
+    copyPgn: 'Copiar PGN',
+    copied: 'Copiado para a área de transferência',
+    copyFailed: 'Não foi possível copiar. Selecione o texto e copie manualmente.',
+    loadFailed: 'Não foi possível carregar este texto',
+  },
+  moves: {
+    label: 'Lista de lances',
+    empty: 'Nenhum lance ainda. Mude para “Jogar lances” e faça um lance, ou cole um PGN.',
+    first: 'Primeira posição',
+    previous: 'Lance anterior',
+    next: 'Próximo lance',
+    last: 'Último lance',
+    startPosition: 'Início',
+  },
+  colors: {
+    white: 'As brancas',
+    black: 'As pretas',
+  },
+  issues: {
+    emptyInput: 'Cole um FEN ou um PGN primeiro.',
+    fenFormat: 'O FEN tem um número errado de campos.',
+    fenBoard: 'A disposição das peças no FEN é inválida.',
+    fenTurn: 'O lado a jogar deve ser “w” ou “b”.',
+    fenCastling: 'O campo de roque do FEN é inválido.',
+    fenEnPassant: 'O campo de en passant deve ser “-” ou uma casa como “e3”.',
+    fenHalfmoves: 'O contador de meios-lances deve ser um número não negativo.',
+    fenFullmoves: 'O número do lance deve ser um número positivo.',
+    unsupportedVariant: 'Só o xadrez padrão é suportado, não variantes.',
+    unsupportedCastling: 'Roque com torres fora dos cantos (Xadrez 960) não é suportado.',
+    pgnNoGame: 'Nenhuma partida foi encontrada no PGN.',
+    pgnIllegalMove: 'O lance {{ply}} (“{{token}}”) é ilegal ou ilegível.',
+    missingKing: '{{color}} precisam de um rei.',
+    multipleKings: '{{color}} só podem ter um rei.',
+    kingsAdjacent: 'Os dois reis não podem se tocar.',
+    pawnsOnBackRank: 'Um peão não pode ficar na primeira ou na última fileira ({{square}}).',
+    sideNotToMoveInCheck: '{{color}} estão em xeque, mas não é a vez delas.',
+    invalidCastling:
+      '{{color}} não podem rocar no lado {{side}}: o rei e a torre devem estar nas casas iniciais.',
+    invalidEnPassant: 'A casa de en passant {{square}} não é possível aqui.',
+    invalidHalfmoves: 'O contador de meios-lances deve ser um número inteiro, 0 ou mais.',
+    invalidFullmoves: 'O número do lance deve ser um número inteiro, 1 ou mais.',
+    invalidPosition: 'Esta posição não é legal.',
+    tooManyPieces: '{{color}} têm mais de 16 peças.',
+    tooManyPawns: '{{color}} têm mais de 8 peões.',
+    tooManyPromotions: '{{color}} têm mais peças extras do que os peões poderiam ter promovido.',
+    impossibleCheck: 'O xeque ao lado que joga não poderia surgir numa partida real.',
+    illegalMove: 'Esse lance não é legal nesta posição.',
+  },
+  sides: {
+    kingSide: 'curto',
+    queenSide: 'longo',
+  },
+}

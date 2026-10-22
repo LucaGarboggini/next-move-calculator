@@ -1,4 +1,5 @@
 // Public API of the design-system layer: primitives, layout, utilities. No chess logic.
+export { Alert, AlertDescription, AlertTitle, alertVariants } from './primitives/alert'
 export { Badge, badgeVariants } from './primitives/badge'
 export { Button, buttonVariants } from './primitives/button'
 export {
@@ -64,6 +65,7 @@ export { Switch } from './primitives/switch'
 export { Tabs, TabsList, TabsTrigger, TabsContent, tabsListVariants } from './primitives/tabs'
 export { ToggleGroup, ToggleGroupItem } from './primitives/toggle-group'
 export { Toggle, toggleVariants } from './primitives/toggle'
+export { Textarea } from './primitives/textarea'
 export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './primitives/tooltip'
 export { AppLayout, type AppLayoutProps } from './layout/AppLayout'
 export { AppHeader, type AppHeaderProps } from './layout/AppHeader'

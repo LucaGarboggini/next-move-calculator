@@ -1,0 +1,125 @@
+/** English strings of the editor (namespace "editor"). pt-BR must provide exactly these keys. */
+export const en = {
+  panels: {
+    position: 'Position',
+    fen: 'FEN and PGN',
+    moves: 'Moves',
+  },
+  mode: {
+    label: 'Mode',
+    edit: 'Edit position',
+    play: 'Play moves',
+  },
+  palette: {
+    label: 'Pieces',
+    hint: 'Pick a piece and tap squares to place it, or drag it onto the board. Drag a piece off the board to remove it.',
+    white: 'White pieces',
+    black: 'Black pieces',
+    move: 'Move pieces',
+    erase: 'Erase pieces',
+  },
+  actions: {
+    label: 'Board actions',
+    start: 'Start position',
+    clear: 'Clear board',
+    flip: 'Flip board',
+    undo: 'Undo',
+    redo: 'Redo',
+  },
+  options: {
+    turn: {
+      label: 'Side to move',
+      white: 'White to move',
+      black: 'Black to move',
+    },
+    castling: {
+      label: 'Castling rights',
+      white: {
+        kingSide: 'White king-side (O-O)',
+        queenSide: 'White queen-side (O-O-O)',
+      },
+      black: {
+        kingSide: 'Black king-side (O-O)',
+        queenSide: 'Black queen-side (O-O-O)',
+      },
+    },
+    enPassant: {
+      label: 'En passant square',
+      none: 'None',
+      unavailable: 'Available after a pawn has just advanced two squares',
+    },
+  },
+  status: {
+    ready: 'Ready for analysis',
+    blocked: 'This position cannot be analyzed yet',
+    warnings: 'Unusual position',
+    toMove: {
+      white: 'White to move',
+      black: 'Black to move',
+    },
+    check: 'Check',
+    checkmate: 'Checkmate',
+    stalemate: 'Stalemate',
+    insufficientMaterial: 'Draw by insufficient material',
+  },
+  fen: {
+    label: 'FEN or PGN',
+    placeholder: 'Paste a FEN or a PGN here',
+    load: 'Load',
+    copyFen: 'Copy FEN',
+    copyPgn: 'Copy PGN',
+    copied: 'Copied to the clipboard',
+    copyFailed: 'Could not copy. Select the text and copy it yourself.',
+    loadFailed: 'This text could not be loaded',
+  },
+  moves: {
+    label: 'Move list',
+    empty: 'No moves yet. Switch to “Play moves” and make a move, or paste a PGN.',
+    first: 'First position',
+    previous: 'Previous move',
+    next: 'Next move',
+    last: 'Last move',
+    startPosition: 'Start',
+  },
+  colors: {
+    white: 'White',
+    black: 'Black',
+  },
+  issues: {
+    emptyInput: 'Paste a FEN or a PGN first.',
+    fenFormat: 'The FEN has the wrong number of fields.',
+    fenBoard: 'The piece placement in the FEN is invalid.',
+    fenTurn: 'The side to move must be “w” or “b”.',
+    fenCastling: 'The castling field in the FEN is invalid.',
+    fenEnPassant: 'The en passant field must be “-” or a square such as “e3”.',
+    fenHalfmoves: 'The halfmove clock must be a non-negative number.',
+    fenFullmoves: 'The move number must be a positive number.',
+    unsupportedVariant: 'Only standard chess is supported, not variants.',
+    unsupportedCastling:
+      'Castling with rooks off their corner squares (Chess960) is not supported.',
+    pgnNoGame: 'No game was found in the PGN.',
+    pgnIllegalMove: 'Move {{ply}} (“{{token}}”) is illegal or unreadable.',
+    missingKing: '{{color}} needs a king.',
+    multipleKings: '{{color}} can only have one king.',
+    kingsAdjacent: 'The two kings cannot touch.',
+    pawnsOnBackRank: 'A pawn cannot stand on the first or last rank ({{square}}).',
+    sideNotToMoveInCheck: '{{color}} is in check but it is not their turn.',
+    invalidCastling:
+      '{{color}} cannot castle {{side}}: the king and rook must be on their starting squares.',
+    invalidEnPassant: 'The en passant square {{square}} is not possible here.',
+    invalidHalfmoves: 'The halfmove clock must be a whole number, 0 or more.',
+    invalidFullmoves: 'The move number must be a whole number, 1 or more.',
+    invalidPosition: 'This position is not legal.',
+    tooManyPieces: '{{color}} has more than 16 pieces.',
+    tooManyPawns: '{{color}} has more than 8 pawns.',
+    tooManyPromotions: '{{color}} has more extra pieces than the pawns could have promoted.',
+    impossibleCheck: 'The check on the side to move could not arise in a real game.',
+    illegalMove: 'That move is not legal in this position.',
+  },
+  sides: {
+    kingSide: 'king-side',
+    queenSide: 'queen-side',
+  },
+} as const
+
+export type EditorMessages = typeof en

@@ -12,6 +12,7 @@ export const ISSUE_CODES = [
   'fenFullmoves',
   'unsupportedVariant',
   'unsupportedCastling',
+  'emptyInput',
   'pgnNoGame',
   'pgnIllegalMove',
   // Setup validation (errors)
@@ -84,6 +85,7 @@ const DEFINITIONS: Record<IssueCode, Definition> = {
     severity: 'error',
     message: () => 'Castling with rooks off their corner squares (Chess960) is not supported.',
   },
+  emptyInput: { severity: 'error', message: () => 'Paste a FEN or a PGN first.' },
   pgnNoGame: { severity: 'error', message: () => 'No game was found in the PGN.' },
   pgnIllegalMove: {
     severity: 'error',

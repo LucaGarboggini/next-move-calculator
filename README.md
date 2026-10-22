@@ -2,7 +2,7 @@
 
 Open-source web app, inspired by nextchessmove.com: set up any chess position and get the best move(s), evaluation and lines, computed 100% in your browser on phone, tablet and desktop. No backend.
 
-> Status: design system, app shell, chess core and board done. The editor, analysis and saved-boards features are not implemented yet.
+> Status: design system, app shell, chess core, board and position editor done. The analysis and saved-boards features are not implemented yet.
 
 ## Requirements
 
@@ -45,7 +45,7 @@ src/
   board/     BoardView interface, chessground adapter
   ui/        design system: tokens, primitives, layout (shadcn/ui)
   i18n/      translations (en, pt-BR) and locale detection
-  state/     Zustand stores (theme, locale; persisted and versioned)
+  state/     Zustand stores (theme, locale: persisted and versioned; editor document)
   features/  editor, analysis, settings, saved-boards
   app/       shell, providers, panel registry
 ```
@@ -64,6 +64,10 @@ See [ADR 0005](docs/adr/0005-chess-core-domain.md). Standard chess only.
 ## Board
 
 `src/board/` exports `Board` (React), `PieceIcon`, `PromotionPicker` and the `BoardView` interface; chessground is used only in `chessground-adapter.ts`. The board is controlled and has three modes: `view`, `play` (legal moves from core's `Position.destinations()`, promotion picker included) and `edit` (free moves, drag off to delete, tap-to-place `EditTool`, palette drag via the `ref`). Arrows and highlights are props. It works with touch, mouse, pen and keyboard (arrows, Enter/Space, Escape, Delete) and announces moves to screen readers. Board themes (`green`, `brown`, `blue`) are token sets; piece themes (`classic`, `glyph`) are CSS. See [ADR 0006](docs/adr/0006-board-layer.md). Every mode has a Storybook story (`board/Board`).
+
+## Position editor
+
+`src/features/editor/` fills the board slot (`EditorBoard`) and registers three panels (position, FEN/PGN, moves). Two modes: **Edit position** (spare-piece palette, tap-to-place and eraser tools, drag pieces around, drop them off the board to delete, Delete key; side to move, castling rights, en passant square; start, clear, flip, undo, redo) and **Play moves** (legal moves only, building a move list you can step through). Paste a FEN or PGN into the FEN box to load it, copy the FEN or PGN back out. An invalid position is still shown, with every reason listed (and translated), and cannot be analyzed or played from: `useEditorSnapshot().position` is defined exactly when a position is legal, which is what the analysis feature will consume. See [ADR 0007](docs/adr/0007-position-editor.md).
 
 ## Design system
 
