@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatEval, toWhiteScore } from './index'
+import { formatEval, toWhiteScore, whiteShare } from './index'
 
 describe('toWhiteScore', () => {
   it('flips centipawns when Black is to move', () => {
@@ -67,5 +67,26 @@ describe('formatEval', () => {
   it('formats UCI scores end to end from the side to move', () => {
     expect(formatEval(toWhiteScore({ kind: 'cp', cp: 50 }, 'black'))).toBe('-0.50')
     expect(formatEval(toWhiteScore({ kind: 'mate', moves: 4 }, 'black'))).toBe('#-4')
+  })
+})
+
+describe('whiteShare', () => {
+  it('is one half when equal and symmetric between the colors', () => {
+    expect(whiteShare({ kind: 'cp', cp: 0 })).toBe(0.5)
+    expect(whiteShare({ kind: 'cp', cp: 150 }) + whiteShare({ kind: 'cp', cp: -150 })).toBeCloseTo(
+      1,
+    )
+  })
+
+  it("grows with White's advantage without ever reaching the ends on centipawns", () => {
+    const shares = [-1500, -300, -50, 0, 50, 300, 1500].map((cp) => whiteShare({ kind: 'cp', cp }))
+    expect([...shares].sort((a, b) => a - b)).toEqual(shares)
+    expect(shares[0]).toBeGreaterThan(0)
+    expect(shares[6]).toBeLessThan(1)
+  })
+
+  it('fills the bar completely for a forced mate, for whoever delivers it', () => {
+    expect(whiteShare({ kind: 'mate', winner: 'white', moves: 4 })).toBe(1)
+    expect(whiteShare({ kind: 'mate', winner: 'black', moves: 0 })).toBe(0)
   })
 })

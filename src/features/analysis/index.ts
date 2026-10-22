@@ -1,2 +1,6 @@
 // Public API of the "analysis" feature. Features never import each other.
-export {}
+import './i18n'
+
+export { AnalysisProvider, type AnalysisProviderProps } from './AnalysisProvider'
+export { AnalysisPanel, SearchSettingsPanel } from './panels'
+export { useAnalysisArrows } from './hooks'

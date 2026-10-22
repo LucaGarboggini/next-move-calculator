@@ -33,3 +33,16 @@ export function formatEval(score: WhiteScore): string {
   if (pawns === 0) return '0.00'
   return `${pawns > 0 ? '+' : '-'}${Math.abs(pawns).toFixed(2)}`
 }
+
+/** Steepness of the centipawn-to-win-chance curve (the one lichess uses for its eval bar). */
+const SHARE_STEEPNESS = 0.00368208
+
+/**
+ * How much of an eval bar White's side fills, from 0 (Black is winning) to 1 (White is winning),
+ * 0.5 when equal. Centipawns follow a logistic curve so a big edge does not flatten the bar
+ * too early; a forced mate fills it completely.
+ */
+export function whiteShare(score: WhiteScore): number {
+  if (score.kind === 'mate') return score.winner === 'white' ? 1 : 0
+  return 1 / (1 + Math.exp(-SHARE_STEEPNESS * score.cp))
+}

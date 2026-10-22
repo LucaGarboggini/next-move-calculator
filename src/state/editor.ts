@@ -71,8 +71,13 @@ interface EditorState {
   /** Loads pasted FEN or PGN; on failure nothing changes and the reasons are returned. */
   load: (text: string) => readonly ValidationIssue[]
 
-  /** `play` mode: plays a legal move from the current position. Returns whether it was made. */
+  /** Plays a legal move from the current position. Returns whether it was made. */
   playMove: (move: Move) => boolean
+  /**
+   * Plays a line (e.g. an engine's principal variation) as one undo step. Returns whether every
+   * move was legal; when one is not, nothing is played.
+   */
+  playMoves: (moves: readonly Move[]) => boolean
   /** Shows the position after `ply` moves of the game (0 = before the first). Not an undo step. */
   goToPly: (ply: number) => void
 
@@ -131,7 +136,9 @@ export const useEditorStore = create<EditorState>()((set, get) => {
       return []
     },
 
-    playMove: (move) => {
+    playMove: (move) => get().playMoves([move]),
+
+    playMoves: (moves) => {
       const { document } = get()
       let game = document.game
       if (!game) {
@@ -139,9 +146,13 @@ export const useEditorStore = create<EditorState>()((set, get) => {
         if (!start.ok) return false
         game = createHistory(start.value)
       }
-      const next = pushMove(game, move)
-      if (!next.ok) return false
-      commit({ setup: currentPosition(next.value).setup, game: next.value })
+      if (moves.length === 0) return false
+      for (const move of moves) {
+        const next = pushMove(game, move)
+        if (!next.ok) return false
+        game = next.value
+      }
+      commit({ setup: currentPosition(game).setup, game })
       return true
     },
 

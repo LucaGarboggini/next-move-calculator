@@ -26,10 +26,13 @@ const BRUSH_COLOR: Record<OverlayTone, string> = {
   neutral: 'var(--board-arrow-neutral)',
 }
 
-const brush = (key: string, tone: OverlayTone, lineWidth: number) => ({
+/** Thin arrows are the secondary ones (other engine lines), so they are also fainter. */
+const THIN_OPACITY = 0.6
+
+const brush = (key: string, tone: OverlayTone, lineWidth: number, opacity = 1) => ({
   key,
   color: BRUSH_COLOR[tone],
-  opacity: 1,
+  opacity,
   lineWidth,
 })
 
@@ -39,10 +42,10 @@ const BRUSHES: DrawBrushes = {
   blue: brush('blue', 'secondary', 10),
   red: brush('red', 'danger', 10),
   yellow: brush('yellow', 'neutral', 10),
-  'green-thin': brush('green-thin', 'primary', 5),
-  'blue-thin': brush('blue-thin', 'secondary', 5),
-  'red-thin': brush('red-thin', 'danger', 5),
-  'yellow-thin': brush('yellow-thin', 'neutral', 5),
+  'green-thin': brush('green-thin', 'primary', 5, THIN_OPACITY),
+  'blue-thin': brush('blue-thin', 'secondary', 5, THIN_OPACITY),
+  'red-thin': brush('red-thin', 'danger', 5, THIN_OPACITY),
+  'yellow-thin': brush('yellow-thin', 'neutral', 5, THIN_OPACITY),
 }
 
 const BRUSH_BY_TONE: Record<OverlayTone, string> = {
