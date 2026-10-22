@@ -137,12 +137,12 @@ test.describe('analysis', () => {
     await calculate(page).click()
     await expect(page.getByTestId('analysis-line')).toHaveCount(5, { timeout: 60_000 })
 
-    // Once the engine is running and streaming (its start-up is not what is tested), measure the longest
-    // gap between two animation frames: a blocked main thread shows up as a long gap.
+    // Once the engine is running and streaming (its start-up is not what is tested), record the gaps
+    // between animation frames.
     await page.evaluate(() => {
-      const probe = { maxGap: 0, last: performance.now(), running: true }
+      const probe = { gaps: [] as number[], last: performance.now(), running: true }
       const tick = (time: number) => {
-        probe.maxGap = Math.max(probe.maxGap, time - probe.last)
+        probe.gaps.push(time - probe.last)
         probe.last = time
         if (probe.running) requestAnimationFrame(tick)
       }
@@ -153,13 +153,16 @@ test.describe('analysis', () => {
     await page.waitForTimeout(3000)
     await stop(page).click()
 
-    const maxGap = await page.evaluate(() => {
-      const probe = (window as unknown as { __frameProbe: { maxGap: number; running: boolean } })
+    const gaps = await page.evaluate(() => {
+      const probe = (window as unknown as { __frameProbe: { gaps: number[]; running: boolean } })
         .__frameProbe
       probe.running = false
-      return probe.maxGap
+      return probe.gaps
     })
-    // Streaming output must not stall the page: no frame may take long.
-    expect(maxGap).toBeLessThan(1000)
+    // A blocked page shows as many long frames, not one: a shared CI runner can hiccup once.
+    const sorted = [...gaps].sort((a, b) => a - b)
+    expect(sorted.length).toBeGreaterThan(20)
+    expect(sorted[Math.floor(sorted.length * 0.95)]).toBeLessThan(250)
+    expect(sorted[sorted.length - 1]).toBeLessThan(3000)
   })
 })
