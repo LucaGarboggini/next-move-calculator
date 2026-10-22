@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Board, type BoardArrow, type BoardMode } from '@/board'
 import { BoardFrame } from '@/ui'
-import { useEditorSnapshot, useEditorStore } from '@/state'
+import { useEditorSnapshot, useEditorStore, useSettings } from '@/state'
 import { useBoardHandle } from './board-handle'
 
 export interface EditorBoardProps {
@@ -16,6 +16,9 @@ export function EditorBoard({ arrows }: EditorBoardProps) {
   const setPieces = useEditorStore((s) => s.setPieces)
   const playMove = useEditorStore((s) => s.playMove)
   const { position } = useEditorSnapshot()
+  const boardTheme = useSettings((s) => s.boardTheme)
+  const pieceTheme = useSettings((s) => s.pieceTheme)
+  const autoQueen = useSettings((s) => s.autoQueen)
 
   // Only a legal position can be played from; otherwise the board is display-only.
   const playing = mode === 'play' && position !== undefined
@@ -32,6 +35,9 @@ export function EditorBoard({ arrows }: EditorBoardProps) {
     <BoardFrame className="overflow-hidden rounded-md shadow-raised">
       <Board
         ref={handle}
+        boardTheme={boardTheme}
+        pieceTheme={pieceTheme}
+        autoPromote={autoQueen ? 'queen' : undefined}
         pieces={document.setup.pieces}
         orientation={orientation}
         mode={boardMode}

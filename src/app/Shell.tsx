@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { LanguageSelect, ThemeToggle } from '@/features/settings'
+import { SettingsControls } from '@/features/settings'
 import { useTranslation } from '@/i18n'
 import { AppHeader, AppLayout } from '@/ui'
 import { StartingBoard } from './StartingBoard'
@@ -23,17 +23,7 @@ export function Shell({ board = <StartingBoard /> }: ShellProps) {
         {t('app.skipToContent')}
       </a>
       <AppLayout
-        header={
-          <AppHeader
-            title={t('app.title')}
-            actions={
-              <>
-                <LanguageSelect />
-                <ThemeToggle />
-              </>
-            }
-          />
-        }
+        header={<AppHeader title={t('app.title')} actions={<SettingsControls />} />}
         board={board}
         panels={panels.map(({ id, component: Panel }) => (
           <Panel key={id} />

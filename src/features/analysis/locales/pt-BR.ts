@@ -83,4 +83,8 @@ export const ptBR: Widen<AnalysisMessages> = {
     reset: 'Restaurar padrões',
     appliesNext: 'As alterações valem a partir do próximo cálculo.',
   },
+  shortcuts: {
+    group: 'Análise',
+    toggle: 'Calcular ou parar o cálculo',
+  },
 }

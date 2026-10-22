@@ -1,9 +1,10 @@
-import type { Color, MoveHistory } from '@/core'
+import type { Color, Move, MoveHistory } from '@/core'
 
 export interface MoveCell {
   /** Plies from the start position once this move is played (what `goToPly` takes). */
   readonly ply: number
   readonly san: string
+  readonly move: Move
 }
 
 export interface MoveRow {
@@ -27,7 +28,7 @@ export function moveRows(game: MoveHistory): MoveRow[] {
       row = { number }
       rows.push(row)
     }
-    const cell = { ply: index + 1, san: entry.san }
+    const cell = { ply: index + 1, san: entry.san, move: entry.move }
     if (slot % 2 === 0) row.white = cell
     else row.black = cell
   })

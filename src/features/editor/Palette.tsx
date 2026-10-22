@@ -2,7 +2,7 @@ import { Eraser, Hand } from 'lucide-react'
 import { PieceIcon, useBoardMessages } from '@/board'
 import { COLORS, ROLES, type Piece } from '@/core'
 import { useTranslation } from '@/i18n'
-import { isSameTool, useEditorStore, type EditorTool } from '@/state'
+import { isSameTool, useEditorStore, useSettings, type EditorTool } from '@/state'
 import { Button, cn } from '@/ui'
 import { useBoardHandle } from './board-handle'
 import { EDITOR_NAMESPACE } from './i18n'
@@ -19,6 +19,7 @@ export function Palette() {
   const board = useBoardHandle()
   const tool = useEditorStore((s) => s.tool)
   const setTool = useEditorStore((s) => s.setTool)
+  const pieceTheme = useSettings((s) => s.pieceTheme)
 
   const toolButton = (candidate: EditorTool, label: string, content: React.ReactNode) => {
     const active = isSameTool(tool, candidate)
@@ -55,7 +56,7 @@ export function Palette() {
         onPointerDown={(event) => board.current?.dragNewPiece(piece, event.nativeEvent)}
         className={cn(SLOT, 'h-auto touch-none')}
       >
-        <PieceIcon piece={piece} className="size-full" />
+        <PieceIcon piece={piece} pieceTheme={pieceTheme} className="size-full" />
       </Button>
     )
   }

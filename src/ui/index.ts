@@ -71,3 +71,17 @@ export { AppLayout, type AppLayoutProps } from './layout/AppLayout'
 export { AppHeader, type AppHeaderProps } from './layout/AppHeader'
 export { BoardFrame } from './layout/BoardFrame'
 export { cn } from './lib/utils'
+export {
+  ShortcutList,
+  ShortcutRegistry,
+  ShortcutsProvider,
+  isMac,
+  keyCaps,
+  matchesKeys,
+  parseKeys,
+  useRegisteredShortcuts,
+  useShortcuts,
+  type Shortcut,
+  type ShortcutListProps,
+  type ShortcutsProviderProps,
+} from './shortcuts'

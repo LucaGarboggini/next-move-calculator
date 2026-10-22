@@ -1,7 +1,8 @@
 import { ChevronFirst, ChevronLast, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useMemo } from 'react'
 import { useTranslation } from '@/i18n'
-import { useEditorStore } from '@/state'
+import { formatMove } from '@/core'
+import { useEditorStore, useSettings } from '@/state'
 import { Button, cn } from '@/ui'
 import { EDITOR_NAMESPACE } from './i18n'
 import { moveRows, type MoveCell } from './moveRows'
@@ -11,6 +12,7 @@ export function MoveList() {
   const { t } = useTranslation(EDITOR_NAMESPACE)
   const game = useEditorStore((s) => s.document.game)
   const goToPly = useEditorStore((s) => s.goToPly)
+  const notation = useSettings((s) => s.notation)
   const rows = useMemo(() => (game ? moveRows(game) : []), [game])
 
   if (!game || game.entries.length === 0) {
@@ -31,7 +33,7 @@ export function MoveList() {
           move.ply === cursor && 'bg-primary text-primary-foreground hover:bg-primary',
         )}
       >
-        {move.san}
+        {formatMove(notation, move.san, move.move)}
       </button>
     ) : (
       <span aria-hidden="true" className="px-2 text-muted-foreground">

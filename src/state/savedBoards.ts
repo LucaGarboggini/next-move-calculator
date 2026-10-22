@@ -106,7 +106,9 @@ export const useSavedBoards = create<SavedBoardsState>()(
         const clean = cleanName(name)
         if (!clean) return
         set((state) => ({
-          boards: state.boards.map((board) => (board.id === id ? { ...board, name: clean } : board)),
+          boards: state.boards.map((board) =>
+            board.id === id ? { ...board, name: clean } : board,
+          ),
         }))
       },
       remove: (id) => set((state) => ({ boards: state.boards.filter((board) => board.id !== id) })),

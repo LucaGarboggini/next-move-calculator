@@ -1,8 +1,15 @@
 import { act, render, renderHook, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { i18n, setLocale } from '@/i18n'
-import { documentFen, useAnalysisSession, useAnalysisSettings, useEditorStore } from '@/state'
+import {
+  documentFen,
+  useAnalysisSession,
+  useAnalysisSettings,
+  useEditorStore,
+  useSettings,
+} from '@/state'
 import { AnalysisPanel } from './AnalysisPanel'
+import { AnalysisProvider } from './AnalysisProvider'
 import { useAnalysisArrows } from './hooks'
 import { en } from './locales/en'
 import { ptBR } from './locales/pt-BR'
@@ -228,6 +235,53 @@ describe('AnalysisPanel', () => {
     act(() => useAnalysisSettings.getState().update({ infinite: true, depth: 18, multiPv: 1 }))
     await userEvent.setup().click(screen.getByRole('button', { name: 'Calculate' }))
     expect(engine.latest.options).toEqual({ multiPv: 1, limits: { depth: 18 } })
+  })
+
+  it('writes moves in the chosen notation', () => {
+    render(
+      <StoryAnalysis status="completed" result={startingResult()}>
+        <AnalysisPanel />
+      </StoryAnalysis>,
+    )
+    const [first] = screen.getAllByTestId('analysis-line')
+    expect(within(first as HTMLElement).getByText('Nf3')).toBeInTheDocument()
+
+    act(() => useSettings.getState().update({ notation: 'figurine' }))
+    expect(within(first as HTMLElement).getByText('♘f3')).toBeInTheDocument()
+    expect(screen.getByTestId('best-move')).toHaveTextContent('e4')
+
+    act(() => useSettings.getState().update({ notation: 'uci' }))
+    expect(within(first as HTMLElement).getByText('g1f3')).toBeInTheDocument()
+    expect(screen.getByTestId('best-move')).toHaveTextContent('e2e4')
+    act(() => useSettings.getState().reset())
+  })
+
+  it('loads a new engine after the engine size changes', async () => {
+    const engines: FakeEngine[] = []
+    const sizes: string[] = []
+    render(
+      <AnalysisProvider
+        createEngine={() => {
+          const engine = new FakeEngine()
+          engines.push(engine)
+          sizes.push(useSettings.getState().engineSize)
+          return engine
+        }}
+      >
+        <AnalysisPanel />
+      </AnalysisProvider>,
+    )
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('button', { name: 'Calculate' }))
+    expect(sizes).toEqual(['lite'])
+
+    act(() => useSettings.getState().update({ engineSize: 'full' }))
+    expect(engines[0]?.disposed).toBe(true)
+    expect(session().status).toBe('idle')
+
+    await user.click(screen.getByRole('button', { name: 'Calculate' }))
+    expect(sizes).toEqual(['lite', 'full'])
+    act(() => useSettings.getState().reset())
   })
 
   it('speaks Portuguese', async () => {

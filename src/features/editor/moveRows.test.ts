@@ -21,10 +21,14 @@ describe('moveRows', () => {
     expect(moveRows(game)).toEqual([
       {
         number: 1,
-        white: { ply: 1, san: 'e4' },
-        black: { ply: 2, san: 'e5' },
+        white: { ply: 1, san: 'e4', move: { from: 'e2', to: 'e4' } },
+        black: { ply: 2, san: 'e5', move: { from: 'e7', to: 'e5' } },
       },
-      { number: 2, white: { ply: 3, san: 'Nf3' }, black: undefined },
+      {
+        number: 2,
+        white: { ply: 3, san: 'Nf3', move: { from: 'g1', to: 'f3' } },
+        black: undefined,
+      },
     ])
   })
 
@@ -32,7 +36,13 @@ describe('moveRows', () => {
     const start = Position.fromFen('4k3/8/8/8/8/8/4P3/4K3 b - - 0 7')
     if (!start.ok) throw new Error('bad test fen')
     const game = play(start.value, [{ from: 'e8', to: 'e7' }])
-    expect(moveRows(game)).toEqual([{ number: 7, white: undefined, black: { ply: 1, san: 'Ke7' } }])
+    expect(moveRows(game)).toEqual([
+      {
+        number: 7,
+        white: undefined,
+        black: { ply: 1, san: 'Ke7', move: { from: 'e8', to: 'e7' } },
+      },
+    ])
   })
 
   it('is empty without moves', () => {

@@ -11,7 +11,12 @@ import {
 
 const AFTER_E4 = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
 
-const input = (name: string) => ({ name, fen: STARTING_FEN, pgn: null, orientation: 'white' as const })
+const input = (name: string) => ({
+  name,
+  fen: STARTING_FEN,
+  pgn: null,
+  orientation: 'white' as const,
+})
 
 describe('saved boards', () => {
   beforeEach(() => {
