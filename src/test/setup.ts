@@ -21,3 +21,17 @@ globalThis.ResizeObserver ??= class {
   unobserve() {}
   disconnect() {}
 }
+
+// Radix Select uses pointer capture and scrollIntoView, which jsdom lacks.
+if (typeof Element !== 'undefined') {
+  const noop = () => {}
+  const polyfills = {
+    hasPointerCapture: () => false,
+    setPointerCapture: noop,
+    releasePointerCapture: noop,
+    scrollIntoView: noop,
+  }
+  for (const [name, value] of Object.entries(polyfills)) {
+    if (!(name in Element.prototype)) Object.defineProperty(Element.prototype, name, { value })
+  }
+}

@@ -171,6 +171,14 @@ describe('Board', () => {
       expect(screen.queryByRole('dialog')).toBeNull()
     })
 
+    it('promotes at once, without asking, when told which piece', () => {
+      const onMove = vi.fn<(move: Move) => void>()
+      renderPlay({ ...props, onMove, autoPromote: 'queen' })
+      pushPawn()
+      expect(screen.queryByRole('dialog')).toBeNull()
+      expect(onMove).toHaveBeenCalledExactlyOnceWith({ from: 'a7', to: 'a8', promotion: 'queen' })
+    })
+
     it('offers the four promotion pieces and focuses the first', () => {
       renderPlay(props)
       pushPawn()

@@ -60,8 +60,10 @@ test.describe('board', () => {
 
   test('is translated', async ({ page }) => {
     await page.goto('/')
+    await page.getByRole('button', { name: 'Settings' }).click()
     await page.getByRole('combobox', { name: 'Language' }).click()
     await page.getByRole('option', { name: 'Português (Brasil)' }).click()
+    await page.keyboard.press('Escape')
     await expect(page.getByRole('application', { name: 'Tabuleiro de xadrez' })).toBeVisible()
   })
 })

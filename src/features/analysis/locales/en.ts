@@ -80,6 +80,10 @@ export const en = {
     reset: 'Restore defaults',
     appliesNext: 'Changes apply to the next calculation.',
   },
+  shortcuts: {
+    group: 'Analysis',
+    toggle: 'Calculate, or stop the calculation',
+  },
 }
 
 export type AnalysisMessages = typeof en

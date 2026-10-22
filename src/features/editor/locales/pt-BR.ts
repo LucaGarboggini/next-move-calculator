@@ -118,6 +118,17 @@ export const ptBR: Widen<EditorMessages> = {
     impossibleCheck: 'O xeque ao lado que joga não poderia surgir numa partida real.',
     illegalMove: 'Esse lance não é legal nesta posição.',
   },
+  shortcuts: {
+    group: 'Tabuleiro e lances',
+    flip: 'Virar o tabuleiro',
+    undo: 'Desfazer',
+    redo: 'Refazer',
+    mode: 'Alternar entre editar e jogar lances',
+    first: 'Primeiro lance',
+    previous: 'Lance anterior',
+    next: 'Próximo lance',
+    last: 'Último lance',
+  },
   sides: {
     kingSide: 'curto',
     queenSide: 'longo',

@@ -58,6 +58,7 @@ interface EditorState {
   setMode: (mode: EditorMode) => void
   setTool: (tool: EditorTool) => void
   flip: () => void
+  setOrientation: (orientation: Color) => void
 
   /** New piece placement from the board (drag, drop, tap tool, keyboard). */
   setPieces: (pieces: Setup['pieces']) => void
@@ -117,6 +118,7 @@ export const useEditorStore = create<EditorState>()((set, get) => {
 
     setMode: (mode) => set({ mode }),
     setTool: (tool) => set({ tool }),
+    setOrientation: (orientation) => set({ orientation }),
     flip: () =>
       set(({ orientation }) => ({ orientation: orientation === 'white' ? 'black' : 'white' })),
 

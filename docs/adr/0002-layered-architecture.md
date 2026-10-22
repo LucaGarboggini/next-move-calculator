@@ -17,7 +17,7 @@ app → features → (ui, board, state, i18n) → (engine, core)
 - `board/` `BoardView` interface, chessground adapter, React wrapper. May import `core`.
 - `ui/` design system: tokens, themes, primitives, layout. Imports nothing from other layers (no chess logic).
 - `i18n/` translations, locale detection, `registerTranslations`. Imports nothing.
-- `state/` Zustand stores. May import `core`, `engine`, `i18n`.
+- `state/` Zustand stores. May import `core`, `engine`, `i18n`, and `board` for its theme catalogue only (see [ADR 0010](0010-settings-persistence-shortcuts.md)).
 - `features/{editor,analysis,settings,saved-boards}` self-contained; may import any lower layer; never each other.
 - `app/` shell, providers, composition; may import everything.
 

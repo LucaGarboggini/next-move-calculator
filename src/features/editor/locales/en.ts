@@ -116,6 +116,17 @@ export const en = {
     impossibleCheck: 'The check on the side to move could not arise in a real game.',
     illegalMove: 'That move is not legal in this position.',
   },
+  shortcuts: {
+    group: 'Board and moves',
+    flip: 'Flip the board',
+    undo: 'Undo',
+    redo: 'Redo',
+    mode: 'Switch between editing and playing moves',
+    first: 'First move',
+    previous: 'Previous move',
+    next: 'Next move',
+    last: 'Last move',
+  },
   sides: {
     kingSide: 'king-side',
     queenSide: 'queen-side',

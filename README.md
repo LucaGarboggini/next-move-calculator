@@ -48,7 +48,7 @@ src/
   board/     BoardView interface, chessground adapter
   ui/        design system: tokens, primitives, layout (shadcn/ui)
   i18n/      translations (en, pt-BR) and locale detection
-  state/     Zustand stores (theme, locale, analysis settings: persisted and versioned; editor document; analysis session)
+  state/     Zustand stores (theme, locale, settings, analysis settings, saved boards: persisted, versioned, migrated; editor document; analysis session)
   features/  editor, analysis, settings, saved-boards
   app/       shell, providers, panel registry
 ```
@@ -102,11 +102,18 @@ See [ADR 0008](docs/adr/0008-engine-layer.md).
 - Output is throttled to 10 updates a second so a phone stays smooth; the engine runs in a worker.
 - The board and the analysis meet only in `app/AnalysisBoard.tsx` (`EditorBoard` takes an `arrows` prop), because features do not import each other. See [ADR 0009](docs/adr/0009-analysis-feature.md).
 
+## Settings, shortcuts and saved boards
+
+- **Settings** (gear button in the header) hold language, theme, board colors, piece style, move notation (standard `Nf3`, figurine `♘f3`, coordinates `g1f3`), "always promote to a queen", engine size and keyboard shortcuts on/off. **Lite** is the default engine; **Full** (~94 MB, strongest, cached after the first download) asks first and warns on phones, low-memory devices and browsers without threads. A new engine size applies to the next calculation.
+- **Keyboard shortcuts**: `F` flip the board, `Ctrl/⌘+Z` undo, `Ctrl/⌘+Shift+Z` redo, `M` edit/play, `←`/`→` previous/next move, `Shift+←`/`Shift+→` first/last move, `Ctrl/⌘+Enter` calculate or stop, `?` the list. They never run while you type in a field, and can be turned off in the settings. Each feature registers its own with `useShortcuts` (see `src/ui/shortcuts`), so the help dialog lists whatever exists.
+- **Saved boards** (panel): name the board on screen (with its moves, if it has any, and which side is at the bottom), load it later, rename or delete it. Up to 100, kept in this browser.
+- **Persistence is versioned.** Every persisted store (`nmc-theme`, `nmc-locale`, `nmc-analysis`, `nmc-settings`, `nmc-saved-boards`) carries a schema `version`. To change a schema: bump the version, add `migrations[oldVersion]` (see `state/savedBoards.ts`, which went from version 1 to 2), and add a test that loads the old payload. Corrupt or newer data is repaired field by field, never dropped wholesale. See [ADR 0010](docs/adr/0010-settings-persistence-shortcuts.md).
+
 ## Design system
 
 - **Tokens** live in [`src/ui/styles/tokens/`](src/ui/styles/tokens) (colors per theme, board, typography, shape, layout, motion, z-index) and are mapped into Tailwind by `src/ui/styles/theme.css`. Components use only those utilities; `npm test` rejects raw colors and px/rem values outside token files, mismatched light/dark token sets and WCAG AA contrast failures.
 - **Re-theme** by editing token files only. Add a theme by defining the same token names under a new selector; board themes use `[data-board-theme="..."]`.
-- **Theme** is `system` (default), `light` or `dark`, switchable in the header; it follows the OS live and is remembered.
+- **Theme** is `system` (default), `light` or `dark`, switchable in the settings dialog; it follows the OS live and is remembered.
 - **Primitives** (shadcn/ui, restyled via tokens) are in `src/ui/primitives`, each with a Storybook story. Controls are compact for mouse and >= 44 px on touch.
 - **Storybook** (`npm run storybook`) has theme and locale toolbars and the viewport toolbar for phone/tablet/desktop.
 
@@ -124,7 +131,7 @@ Call it from `registerDefaultPanels` in `src/app/panels/defaults.ts`.
 
 ## Internationalisation
 
-Every string goes through `useTranslation()`. Core strings are in `src/i18n/locales`; a feature registers its own namespace with `registerTranslations`. To add a language, add a locale file and list it in `src/i18n/locales.ts`. See [ADR 0004](docs/adr/0004-i18n.md).
+Every string goes through `useTranslation()`. Core strings are in `src/i18n/locales`; a feature registers its own namespace with `registerTranslations`. English is the default; Brazilian Portuguese (pt-BR) is complete, and `src/app/translations.test.ts` fails if any namespace misses a key, a `{{placeholder}}` or a translation. To add a language, add a locale file per namespace and list it in `src/i18n/locales.ts`. See [ADR 0004](docs/adr/0004-i18n.md).
 
 ## Hosting requirements
 

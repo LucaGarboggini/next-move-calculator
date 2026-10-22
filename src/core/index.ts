@@ -68,3 +68,4 @@ export {
 export { makePgn, parsePgn, type GameResult, type MakePgnOptions, type PgnGame } from './pgn'
 export { formatEval, toWhiteScore, whiteShare, type Score, type WhiteScore } from './eval'
 export { importText, type ImportedPosition } from './import'
+export { DEFAULT_NOTATION, NOTATIONS, formatMove, isNotation, type Notation } from './notation'

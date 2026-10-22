@@ -1,7 +1,7 @@
 import { memo } from 'react'
-import { formatEval, type Color, type Move } from '@/core'
+import { formatEval, formatMove, type Color, type Move, type Notation } from '@/core'
 import { useTranslation } from '@/i18n'
-import type { AnalysisLine } from '@/state'
+import { useSettings, type AnalysisLine } from '@/state'
 import { lineText, lineTokens } from './format'
 import { ANALYSIS_NAMESPACE } from './i18n'
 
@@ -15,6 +15,13 @@ export type PlayLine = (moves: readonly Move[], count: number) => void
 const moveButtonClass =
   'min-h-control-sm rounded-md px-1.5 font-mono text-sm outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50'
 
+/** The first plies of a line, written in the user's notation. */
+const writtenLine = (line: AnalysisLine, notation: Notation): string[] =>
+  line.san.slice(0, MAX_PLIES).map((san, i) => {
+    const move = line.pv[i]
+    return move ? formatMove(notation, san, move) : san
+  })
+
 interface LineRowProps {
   line: AnalysisLine
   turn: Color
@@ -24,7 +31,8 @@ interface LineRowProps {
 
 const LineRow = memo(function LineRow({ line, turn, fullmoves, onPlay }: LineRowProps) {
   const { t } = useTranslation(ANALYSIS_NAMESPACE)
-  const tokens = lineTokens(turn, fullmoves, line.san.slice(0, MAX_PLIES))
+  const notation = useSettings((s) => s.notation)
+  const tokens = lineTokens(turn, fullmoves, writtenLine(line, notation))
   return (
     <li
       data-testid="analysis-line"

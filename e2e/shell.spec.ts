@@ -1,5 +1,11 @@
 import { expect, test, type Page } from '@playwright/test'
 
+/** Theme and language live in the settings dialog. */
+const openSettings = async (page: Page) => {
+  await page.getByRole('button', { name: 'Settings' }).click()
+  await expect(page.getByRole('dialog', { name: 'Settings' })).toBeVisible()
+}
+
 const box = async (page: Page, selector: string) => {
   const b = await page.locator(selector).boundingBox()
   if (!b) throw new Error(`${selector} has no box`)
@@ -31,11 +37,7 @@ test.describe('layout', () => {
     await page.goto('/')
     const coarse = await page.evaluate(() => matchMedia('(pointer: coarse)').matches)
     test.skip(!coarse, 'fine pointers use compact controls')
-    const controls = page
-      .locator('header')
-      .getByRole('button')
-      .or(page.locator('header').getByRole('combobox'))
-      .or(page.locator('header').getByRole('radio'))
+    const controls = page.locator('header').getByRole('button')
     expect(await controls.count()).toBeGreaterThan(0)
     for (const control of await controls.all()) {
       const b = (await control.boundingBox())!
@@ -53,11 +55,13 @@ test.describe('theme', () => {
       await page.emulateMedia({ colorScheme: 'dark' })
       await expect(page.locator('html')).toHaveClass(/dark/)
 
+      await openSettings(page)
       await page.getByRole('radio', { name: 'Light theme' }).click()
       await expect(page.locator('html')).not.toHaveClass(/dark/)
 
       await page.reload()
       await expect(page.locator('html')).not.toHaveClass(/dark/)
+      await openSettings(page)
       await expect(page.getByRole('radio', { name: 'Light theme' })).toBeChecked()
 
       await page.getByRole('radio', { name: 'System theme' }).click()
@@ -79,10 +83,13 @@ test.describe('i18n', () => {
     await page.goto('/')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Next-Move Calculator')
 
+    await openSettings(page)
     await page.getByRole('combobox', { name: 'Language' }).click()
     await page.getByRole('option', { name: 'Português (Brasil)' }).click()
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Calculadora do Próximo Lance')
     await expect(page.locator('html')).toHaveAttribute('lang', 'pt-BR')
+    await expect(page.getByRole('dialog', { name: 'Configurações' })).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Calculadora do Próximo Lance')
 
     await page.reload()
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Calculadora do Próximo Lance')

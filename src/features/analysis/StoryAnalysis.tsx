@@ -5,6 +5,7 @@ import {
   resetEditorStore,
   useAnalysisSettings,
   useEditorStore,
+  useSettings,
   type AnalysisResult,
   type AnalysisStatus,
 } from '@/state'
@@ -38,6 +39,7 @@ export function StoryAnalysis({
     resetEditorStore()
     if (text) useEditorStore.getState().load(text)
     useAnalysisSettings.setState(DEFAULT_ANALYSIS_SETTINGS)
+    useSettings.getState().reset()
     resetAnalysisSession({
       ...(status && { status }),
       ...(result && { result }),

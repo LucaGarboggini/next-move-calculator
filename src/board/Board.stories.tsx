@@ -72,6 +72,11 @@ export const PlayPromotion: Story = {
   render: () => <PlayDemo fen="7k/P7/8/8/8/8/8/4K3 w - - 0 1" />,
 }
 
+/** With `autoPromote="queen"` the pawn becomes a queen without asking. */
+export const PlayAutoQueen: Story = {
+  render: () => <PlayDemo fen="7k/P7/8/8/8/8/8/4K3 w - - 0 1" autoPromote="queen" />,
+}
+
 /** Castling is available: move the king two squares. */
 export const PlayCastling: Story = {
   render: () => <PlayDemo fen="r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1" />,

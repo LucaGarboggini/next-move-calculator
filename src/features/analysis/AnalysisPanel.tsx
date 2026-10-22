@@ -1,6 +1,7 @@
 import { Play, Square } from 'lucide-react'
-import { formatEval, whiteShare, type WhiteScore } from '@/core'
+import { formatEval, formatMove, whiteShare, type WhiteScore } from '@/core'
 import { useTranslation } from '@/i18n'
+import { useSettings } from '@/state'
 import { Alert, AlertDescription, Button, Card, CardContent, CardHeader, CardTitle } from '@/ui'
 import { AnalysisLines } from './AnalysisLines'
 import { AnalysisStats } from './AnalysisStats'
@@ -22,8 +23,11 @@ export function AnalysisPanel() {
   const { t } = useTranslation(ANALYSIS_NAMESPACE)
   const { status, error, result, running, blocker, turn, calculate, stop } = useAnalysis()
   const playLine = usePlayLine()
+  const notation = useSettings((s) => s.notation)
 
   const best = result?.lines[0]
+  const bestMove = best?.pv[0]
+  const bestText = best && bestMove ? formatMove(notation, best.san[0] ?? '', bestMove) : undefined
   const message = blocker ? t(`blocked.${blocker}`) : t(`status.${status}`, { message: error })
 
   return (
@@ -81,11 +85,11 @@ export function AnalysisPanel() {
                 type="button"
                 variant="secondary"
                 data-testid="best-move"
-                aria-label={t('best.play', { move: best.san[0] })}
+                aria-label={t('best.play', { move: bestText })}
                 className="font-mono"
                 onClick={() => playLine(best.pv, 1)}
               >
-                {best.san[0]}
+                {bestText}
               </Button>
             </div>
 

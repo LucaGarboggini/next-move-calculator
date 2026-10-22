@@ -11,7 +11,7 @@ import {
   type KeyboardEvent,
   type Ref,
 } from 'react'
-import type { Move, Piece, Square } from '@/core'
+import type { Move, Piece, PromotionRole, Square } from '@/core'
 import { createChessgroundView } from './chessground-adapter'
 import { initialCursor, isCursorKey, moveCursor, squareBox } from './keyboard'
 import { useBoardMessages } from './messages-context'
@@ -43,6 +43,8 @@ export interface BoardProps extends Partial<Omit<BoardViewState, 'pieces' | 'ani
   animations?: boolean
   boardTheme?: BoardThemeId
   pieceTheme?: PieceThemeId
+  /** `play` mode: promote to this piece without asking ("auto-queen"). Asks when undefined. */
+  autoPromote?: PromotionRole
   /** `play` mode: the user chose a legal move (promotion piece included when needed). */
   onMove?: (move: Move) => void
   onEdit?: BoardViewEvents['onEdit']
@@ -93,6 +95,7 @@ export function Board({
   animations,
   boardTheme = DEFAULT_BOARD_THEME,
   pieceTheme = DEFAULT_PIECE_THEME,
+  autoPromote,
   onMove,
   onEdit,
   onSquareSelect,
@@ -148,9 +151,9 @@ export function Board({
   )
 
   // The view calls back asynchronously, so it always gets the latest props through refs.
-  const latest = useRef({ state, onMove, onEdit, onSquareSelect })
+  const latest = useRef({ state, autoPromote, onMove, onEdit, onSquareSelect })
   useLayoutEffect(() => {
-    latest.current = { state, onMove, onEdit, onSquareSelect }
+    latest.current = { state, autoPromote, onMove, onEdit, onSquareSelect }
   })
 
   const announce = useCallback((text: string) => setAnnouncement(text), [])
@@ -168,8 +171,10 @@ export function Board({
 
   const handleViewMove = useCallback(
     (move: Pick<Move, 'from' | 'to'>) => {
-      if (isPromotion(latest.current.state.pieces[move.from], move.to)) setPendingPromotion(move)
-      else commitMove(move)
+      if (!isPromotion(latest.current.state.pieces[move.from], move.to)) commitMove(move)
+      else if (latest.current.autoPromote)
+        commitMove({ ...move, promotion: latest.current.autoPromote })
+      else setPendingPromotion(move)
     },
     [commitMove],
   )

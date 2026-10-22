@@ -24,8 +24,8 @@ describe('Shell', () => {
   it('has a header with title and global controls plus a skip link', () => {
     renderShell()
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Next-Move Calculator')
-    expect(screen.getByRole('radiogroup', { name: 'Theme' })).toBeInTheDocument()
-    expect(screen.getByRole('combobox', { name: 'Language' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Settings' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'View shortcuts' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Skip to board' })).toHaveAttribute(
       'href',
       '#board-area',

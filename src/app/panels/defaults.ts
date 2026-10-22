@@ -1,5 +1,6 @@
 import { AnalysisPanel, SearchSettingsPanel } from '@/features/analysis'
 import { FenPanel, MovesPanel, PositionPanel } from '@/features/editor'
+import { SavedBoardsPanel } from '@/features/saved-boards'
 import { registerPanel } from './registry'
 
 /** Composition point: features add their panels here with `registerPanel`. */
@@ -10,4 +11,5 @@ export function registerDefaultPanels(): void {
   registerPanel({ id: 'editor-fen', order: 20, component: FenPanel })
   registerPanel({ id: 'editor-moves', order: 30, component: MovesPanel })
   registerPanel({ id: 'analysis-settings', order: 40, component: SearchSettingsPanel })
+  registerPanel({ id: 'saved-boards', order: 50, component: SavedBoardsPanel })
 }
