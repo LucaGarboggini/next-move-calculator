@@ -1,14 +1,54 @@
-/* Board and eval tokens. Independent of the light/dark UI theme: a board theme
- * is another token set, selected with [data-board-theme="<name>"] on any
- * ancestor (the default below applies at :root). */
-:root {
+/* Board, piece and eval tokens. Independent of the light/dark UI theme.
+ *
+ * A board theme is a token set selected with [data-board-theme="<name>"] on any
+ * ancestor; the default (green) also applies at :root. Every theme must define
+ * the same four square/coordinate tokens (checked in tools/tokens.test.ts).
+ * Piece themes are selected with [data-piece-theme="<name>"]; the sprite themes
+ * live in src/board/styles, the glyph theme is colored by the --piece-* tokens. */
+:root,
+[data-board-theme='green'] {
   --board-square-light: oklch(0.92 0.05 105);
   --board-square-dark: oklch(0.62 0.1 140);
-  --board-highlight: oklch(0.85 0.17 95 / 55%);
-  --board-last-move: oklch(0.8 0.15 95 / 45%);
-  --board-check: oklch(0.6 0.22 27 / 70%);
   --board-coordinate-on-light: oklch(0.42 0.09 140);
   --board-coordinate-on-dark: oklch(0.95 0.04 105);
+}
+
+[data-board-theme='brown'] {
+  --board-square-light: oklch(0.88 0.05 80);
+  --board-square-dark: oklch(0.6 0.09 60);
+  --board-coordinate-on-light: oklch(0.42 0.08 60);
+  --board-coordinate-on-dark: oklch(0.96 0.03 80);
+}
+
+[data-board-theme='blue'] {
+  --board-square-light: oklch(0.92 0.02 250);
+  --board-square-dark: oklch(0.6 0.08 250);
+  --board-coordinate-on-light: oklch(0.42 0.08 250);
+  --board-coordinate-on-dark: oklch(0.97 0.01 250);
+}
+
+:root {
+  /* Square overlays */
+  --board-highlight: oklch(0.85 0.17 95 / 55%);
+  --board-last-move: oklch(0.8 0.15 95 / 45%);
+  --board-selected: oklch(0.7 0.17 150 / 55%);
+  --board-check: oklch(0.6 0.22 27 / 70%);
+  --board-dest: oklch(0.3 0.05 150 / 35%);
+  --board-hl-primary: oklch(0.72 0.17 150 / 55%);
+  --board-hl-secondary: oklch(0.7 0.14 250 / 55%);
+  --board-hl-danger: oklch(0.62 0.22 27 / 55%);
+  --board-hl-neutral: oklch(0.7 0.02 250 / 55%);
+
+  /* Arrows (engine lines etc.) */
+  --board-arrow-primary: oklch(0.62 0.17 150);
+  --board-arrow-secondary: oklch(0.6 0.15 250);
+  --board-arrow-danger: oklch(0.58 0.22 27);
+  --board-arrow-neutral: oklch(0.55 0.03 250);
+
+  /* Glyph piece theme */
+  --piece-glyph-white: oklch(0.98 0 0);
+  --piece-glyph-black: oklch(0.2 0 0);
+  --piece-glyph-outline: oklch(0.15 0 0);
 
   --eval-white: oklch(0.97 0 0);
   --eval-black: oklch(0.22 0 0);

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { LanguageSelect, ThemeToggle } from '@/features/settings'
 import { useTranslation } from '@/i18n'
 import { AppHeader, AppLayout } from '@/ui'
-import { BoardPlaceholder } from './BoardPlaceholder'
+import { StartingBoard } from './StartingBoard'
 import { usePanels } from './panels/registry'
 
 export interface ShellProps {
@@ -11,7 +11,7 @@ export interface ShellProps {
 }
 
 /** Exposes a board area and a panel area; panels arrive via `registerPanel`. */
-export function Shell({ board = <BoardPlaceholder /> }: ShellProps) {
+export function Shell({ board = <StartingBoard /> }: ShellProps) {
   const { t } = useTranslation()
   const panels = usePanels()
   return (

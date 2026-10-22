@@ -1,6 +1,7 @@
 import type { Decorator, Preview } from '@storybook/react-vite'
 import '../src/index.css'
 import { LOCALES, LOCALE_NAMES, setLocale, type Locale } from '../src/i18n'
+import { BoardI18nProvider } from '../src/app'
 import { TooltipProvider } from '../src/ui'
 
 /** Every story renders in the toolbar-selected theme and locale, like the real app. */
@@ -8,9 +9,11 @@ const withGlobals: Decorator = (Story, context) => {
   document.documentElement.classList.toggle('dark', context.globals.theme === 'dark')
   void setLocale(context.globals.locale as Locale)
   return (
-    <TooltipProvider>
-      <Story />
-    </TooltipProvider>
+    <BoardI18nProvider>
+      <TooltipProvider>
+        <Story />
+      </TooltipProvider>
+    </BoardI18nProvider>
   )
 }
 

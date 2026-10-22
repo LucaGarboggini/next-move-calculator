@@ -1,0 +1,135 @@
+@import 'chessground/assets/chessground.base.css';
+@import './pieces.css';
+
+/* The board is drawn entirely with tokens (ui/styles/tokens/board.css), so
+ * board themes and light/dark need no extra rules. Sizing comes from the
+ * parent: the board fills its square container and scales with it. */
+
+.cg-wrap {
+  width: 100%;
+  height: 100%;
+  container-type: inline-size;
+}
+
+cg-board {
+  background-color: var(--board-square-light);
+  /* Two-by-two squares per tile: dark top-right and bottom-left. */
+  background-image: conic-gradient(
+    var(--board-square-dark) 0 25%,
+    var(--board-square-light) 0 50%,
+    var(--board-square-dark) 0 75%,
+    var(--board-square-light) 0
+  );
+  background-size: 25% 25%;
+  touch-action: none;
+}
+
+/* ---- square overlays ---- */
+cg-board square.last-move {
+  background-color: var(--board-last-move);
+}
+cg-board square.selected {
+  background-color: var(--board-selected);
+}
+cg-board square.check {
+  background: radial-gradient(ellipse at center, var(--board-check) 0%, transparent 89%);
+}
+cg-board square.move-dest {
+  background: radial-gradient(var(--board-dest) 22%, transparent 24%);
+}
+cg-board square.move-dest.oc {
+  background: radial-gradient(transparent 0%, transparent 80%, var(--board-dest) 80%);
+}
+cg-board square.move-dest:hover {
+  background: var(--board-highlight);
+}
+cg-board square.hl-primary {
+  background-color: var(--board-hl-primary);
+}
+cg-board square.hl-secondary {
+  background-color: var(--board-hl-secondary);
+}
+cg-board square.hl-danger {
+  background-color: var(--board-hl-danger);
+}
+cg-board square.hl-neutral {
+  background-color: var(--board-hl-neutral);
+}
+
+/* ---- coordinates, inside the board ---- */
+.cg-wrap coords {
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: 2.8cqw;
+  font-weight: 600;
+  line-height: 1;
+  opacity: 1;
+  text-transform: none;
+}
+
+.cg-wrap coords.ranks {
+  top: 0;
+  left: 0;
+  width: auto;
+  height: 100%;
+}
+.cg-wrap coords.ranks coord {
+  display: flex;
+  flex: 1 1 0;
+  align-items: flex-start;
+  padding: 0.5cqw 0.7cqw;
+  transform: none;
+}
+
+.cg-wrap coords.files {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  text-transform: none;
+}
+.cg-wrap coords.files coord {
+  display: flex;
+  flex: 1 1 0;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 0.5cqw 0.7cqw;
+}
+
+/* Rank 1 (odd children) is a dark square in the a-file (white's view) and a light one in the h-file. */
+.cg-wrap coords.ranks coord:nth-child(odd),
+.cg-wrap coords.files coord:nth-child(odd) {
+  color: var(--board-coordinate-on-dark);
+}
+.cg-wrap coords.ranks coord:nth-child(even),
+.cg-wrap coords.files coord:nth-child(even) {
+  color: var(--board-coordinate-on-light);
+}
+.cg-wrap coords.ranks.black coord:nth-child(odd),
+.cg-wrap coords.files.black coord:nth-child(odd) {
+  color: var(--board-coordinate-on-light);
+}
+.cg-wrap coords.ranks.black coord:nth-child(even),
+.cg-wrap coords.files.black coord:nth-child(even) {
+  color: var(--board-coordinate-on-dark);
+}
+
+/* Arrows should read over pieces and keep the token color. */
+.cg-wrap .cg-shapes {
+  opacity: 0.85;
+}
+
+/* ---- standalone piece (palette, promotion picker) ---- */
+.piece-icon {
+  container-type: inline-size;
+  display: block;
+}
+.piece-icon piece {
+  --piece-size: 100cqw;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+}
+[data-piece-theme='glyph'] .piece-icon piece {
+  display: flex;
+}
