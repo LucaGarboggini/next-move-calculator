@@ -1,0 +1,30 @@
+Stockfish 19 Lite WASM by the Stockfish developers (see AUTHORS file)
+id name Stockfish 19 Lite WASM
+id author the Stockfish developers (see AUTHORS file)
+option name Threads type spin default 1 min 1 max 1
+option name Hash type spin default 16 min 1 max 33554432
+option name Clear Hash type button
+option name Ponder type check default false
+option name MultiPV type spin default 1 min 1 max 256
+option name Skill Level type spin default 20 min 0 max 20
+option name Move Overhead type spin default 10 min 0 max 5000
+option name nodestime type spin default 0 min 0 max 10000
+option name UCI_Chess960 type check default false
+option name UCI_LimitStrength type check default false
+option name UCI_Elo type spin default 1320 min 1320 max 3190
+option name UCI_ShowWDL type check default false
+option name EvalFile type string default nn-61e7af4bb97d.nnue
+uciok
+readyok
+info string Network replica 1: Local memory. Shared memory not supported by the OS. Local allocation fallback.
+info depth 1 seldepth 7 multipv 1 score mate 3 nodes 120 nps 120000 hashfull 0 time 1 pv f6a6 f7f6 e5f6 g8g7 a6a8
+info depth 2 seldepth 7 multipv 1 score mate 3 nodes 203 nps 203000 hashfull 0 time 1 pv f6a6 f7f6 e5f6 g8g7 a6a8
+info depth 3 seldepth 7 multipv 1 score mate 3 nodes 273 nps 273000 hashfull 0 time 1 pv f6a6 f7f6 e5f6 g8g7 a6a8
+info depth 4 seldepth 7 multipv 1 score mate 3 nodes 334 nps 334000 hashfull 0 time 1 pv f6a6 f7f6 e5f6 g8g7 a6a8
+info depth 5 seldepth 6 multipv 1 score mate 3 nodes 397 nps 397000 hashfull 0 time 1 pv f6a6 f7f6 e5f6 g8g7 a6a8
+info depth 6 seldepth 6 multipv 1 score mate 3 nodes 478 nps 478000 hashfull 0 time 1 pv f6a6 f7f6 e5f6 g8g7 a6a8
+info depth 7 seldepth 6 multipv 1 score mate 3 nodes 586 nps 586000 hashfull 0 time 1 pv f6a6 f7f6 e5f6 g8g7 a6a8
+info depth 8 seldepth 6 multipv 1 score mate 3 nodes 684 nps 684000 hashfull 0 time 1 pv f6a6 f7f6 e5f6 g8g7 a6a8
+info depth 9 seldepth 6 multipv 1 score mate 3 nodes 781 nps 781000 hashfull 0 time 1 pv f6a6 f7f6 e5f6 g8g7 a6a8
+info depth 10 seldepth 6 multipv 1 score mate 3 nodes 870 nps 870000 hashfull 0 time 1 pv f6a6 f7f6 e5f6 g8g7 a6a8
+bestmove f6a6 ponder f7f6

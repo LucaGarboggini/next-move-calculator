@@ -1,0 +1,30 @@
+Stockfish 19 Lite WASM by the Stockfish developers (see AUTHORS file)
+id name Stockfish 19 Lite WASM
+id author the Stockfish developers (see AUTHORS file)
+option name Threads type spin default 1 min 1 max 1
+option name Hash type spin default 16 min 1 max 33554432
+option name Clear Hash type button
+option name Ponder type check default false
+option name MultiPV type spin default 1 min 1 max 256
+option name Skill Level type spin default 20 min 0 max 20
+option name Move Overhead type spin default 10 min 0 max 5000
+option name nodestime type spin default 0 min 0 max 10000
+option name UCI_Chess960 type check default false
+option name UCI_LimitStrength type check default false
+option name UCI_Elo type spin default 1320 min 1320 max 3190
+option name UCI_ShowWDL type check default false
+option name EvalFile type string default nn-61e7af4bb97d.nnue
+uciok
+readyok
+info string Network replica 1: Local memory. Shared memory not supported by the OS. Local allocation fallback.
+info depth 1 seldepth 4 multipv 1 score cp 201 nodes 9 nps 9000 hashfull 0 time 1 pv b7a6
+info depth 2 seldepth 3 multipv 1 score mate -1 nodes 102 nps 102000 hashfull 0 time 1 pv b7a6 b6b7
+info depth 3 seldepth 3 multipv 1 score mate -1 nodes 110 nps 110000 hashfull 0 time 1 pv b7a6 b6b7
+info depth 4 seldepth 3 multipv 1 score mate -1 nodes 120 nps 120000 hashfull 0 time 1 pv b7a6 b6b7
+info depth 5 seldepth 3 multipv 1 score mate -1 nodes 134 nps 134000 hashfull 0 time 1 pv b7a6 b6b7
+info depth 6 seldepth 3 multipv 1 score mate -1 nodes 148 nps 148000 hashfull 0 time 1 pv b7a6 b6b7
+info depth 7 seldepth 3 multipv 1 score mate -1 nodes 161 nps 161000 hashfull 0 time 1 pv b7a6 b6b7
+info depth 8 seldepth 3 multipv 1 score mate -1 nodes 175 nps 175000 hashfull 0 time 1 pv b7a6 b6b7
+info depth 9 seldepth 3 multipv 1 score mate -1 nodes 189 nps 189000 hashfull 0 time 1 pv b7a6 b6b7
+info depth 10 seldepth 3 multipv 1 score mate -1 nodes 203 nps 203000 hashfull 0 time 1 pv b7a6 b6b7
+bestmove b7a6 ponder b6b7
