@@ -1,0 +1,89 @@
+/* Piece themes, selected with [data-piece-theme="<name>"] on an ancestor of the
+ * board. `classic` uses SVG sprites (cburnett, GPL-2.0-or-later; the same set
+ * bundled with chessground); `glyph` draws Unicode chess symbols colored by the
+ * --piece-* tokens. Add a theme by adding a block here and its id in themes.ts. */
+
+/* Size of one piece, so themes that draw text can scale with the board. */
+.cg-wrap piece {
+  --piece-size: 12.5cqw;
+}
+
+/* ---- classic ---- */
+[data-piece-theme='classic'] piece.pawn.white {
+  background-image: url('./pieces/classic/wP.svg');
+}
+[data-piece-theme='classic'] piece.bishop.white {
+  background-image: url('./pieces/classic/wB.svg');
+}
+[data-piece-theme='classic'] piece.knight.white {
+  background-image: url('./pieces/classic/wN.svg');
+}
+[data-piece-theme='classic'] piece.rook.white {
+  background-image: url('./pieces/classic/wR.svg');
+}
+[data-piece-theme='classic'] piece.queen.white {
+  background-image: url('./pieces/classic/wQ.svg');
+}
+[data-piece-theme='classic'] piece.king.white {
+  background-image: url('./pieces/classic/wK.svg');
+}
+[data-piece-theme='classic'] piece.pawn.black {
+  background-image: url('./pieces/classic/bP.svg');
+}
+[data-piece-theme='classic'] piece.bishop.black {
+  background-image: url('./pieces/classic/bB.svg');
+}
+[data-piece-theme='classic'] piece.knight.black {
+  background-image: url('./pieces/classic/bN.svg');
+}
+[data-piece-theme='classic'] piece.rook.black {
+  background-image: url('./pieces/classic/bR.svg');
+}
+[data-piece-theme='classic'] piece.queen.black {
+  background-image: url('./pieces/classic/bQ.svg');
+}
+[data-piece-theme='classic'] piece.king.black {
+  background-image: url('./pieces/classic/bK.svg');
+}
+
+/* ---- glyph ---- */
+[data-piece-theme='glyph'] piece {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: none;
+  font-family: system-ui, sans-serif;
+  font-size: calc(var(--piece-size) * 1.05);
+  line-height: 1;
+  -webkit-text-stroke: calc(var(--piece-size) * 0.03) var(--piece-glyph-outline);
+  paint-order: stroke fill;
+}
+
+[data-piece-theme='glyph'] piece.white {
+  color: var(--piece-glyph-white);
+}
+
+[data-piece-theme='glyph'] piece.black {
+  color: var(--piece-glyph-black);
+  -webkit-text-stroke-color: var(--piece-glyph-white);
+}
+
+/* U+FE0E forces text presentation, so platforms do not swap in color emoji. */
+[data-piece-theme='glyph'] piece.king::before {
+  content: '\265A\FE0E';
+}
+[data-piece-theme='glyph'] piece.queen::before {
+  content: '\265B\FE0E';
+}
+[data-piece-theme='glyph'] piece.rook::before {
+  content: '\265C\FE0E';
+}
+[data-piece-theme='glyph'] piece.bishop::before {
+  content: '\265D\FE0E';
+}
+[data-piece-theme='glyph'] piece.knight::before {
+  content: '\265E\FE0E';
+}
+[data-piece-theme='glyph'] piece.pawn::before {
+  content: '\265F\FE0E';
+}

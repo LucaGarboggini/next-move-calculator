@@ -18,7 +18,7 @@ describe('Shell', () => {
     renderShell()
     expect(screen.getByRole('main')).toBeInTheDocument()
     expect(screen.getByRole('complementary')).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: 'Empty chess board' })).toBeInTheDocument()
+    expect(screen.getByRole('application', { name: 'Chessboard' })).toBeInTheDocument()
   })
 
   it('has a header with title and global controls plus a skip link', () => {

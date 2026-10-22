@@ -2,7 +2,7 @@
 
 Open-source web app, inspired by nextchessmove.com: set up any chess position and get the best move(s), evaluation and lines, computed 100% in your browser on phone, tablet and desktop. No backend.
 
-> Status: design system, app shell and chess core done. The editor, analysis and saved-boards features are not implemented yet.
+> Status: design system, app shell, chess core and board done. The editor, analysis and saved-boards features are not implemented yet.
 
 ## Requirements
 
@@ -60,6 +60,10 @@ src/
 - `toWhiteScore` / `formatEval`: engine scores from White's point of view, mates as `#N`.
 
 See [ADR 0005](docs/adr/0005-chess-core-domain.md). Standard chess only.
+
+## Board
+
+`src/board/` exports `Board` (React), `PieceIcon`, `PromotionPicker` and the `BoardView` interface; chessground is used only in `chessground-adapter.ts`. The board is controlled and has three modes: `view`, `play` (legal moves from core's `Position.destinations()`, promotion picker included) and `edit` (free moves, drag off to delete, tap-to-place `EditTool`, palette drag via the `ref`). Arrows and highlights are props. It works with touch, mouse, pen and keyboard (arrows, Enter/Space, Escape, Delete) and announces moves to screen readers. Board themes (`green`, `brown`, `blue`) are token sets; piece themes (`classic`, `glyph`) are CSS. See [ADR 0006](docs/adr/0006-board-layer.md). Every mode has a Storybook story (`board/Board`).
 
 ## Design system
 

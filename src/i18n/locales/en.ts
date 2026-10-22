@@ -4,9 +4,6 @@ export const en = {
     title: 'Next-Move Calculator',
     skipToContent: 'Skip to board',
   },
-  board: {
-    placeholder: 'Empty chess board',
-  },
   panels: {
     welcome: {
       title: 'Welcome',

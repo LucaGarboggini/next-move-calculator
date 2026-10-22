@@ -7,9 +7,6 @@ export const ptBR: Widen<Messages> = {
     title: 'Calculadora do Próximo Lance',
     skipToContent: 'Ir para o tabuleiro',
   },
-  board: {
-    placeholder: 'Tabuleiro de xadrez vazio',
-  },
   panels: {
     welcome: {
       title: 'Boas-vindas',

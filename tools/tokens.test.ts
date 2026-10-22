@@ -17,7 +17,20 @@ function declarations(css: string, selector: string): Record<string, string> {
 
 const light = declarations(read('tokens/colors.light.css'), ':root')
 const dark = declarations(read('tokens/colors.dark.css'), '.dark')
-const board = declarations(read('tokens/board.css'), ':root')
+
+/** Every top-level rule of a token file: selector text and its custom properties. */
+function rules(css: string): { selector: string; tokens: Record<string, string> }[] {
+  return [...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((m) => ({
+    selector: m[1].trim(),
+    tokens: Object.fromEntries(
+      [...m[2].matchAll(/(--[\w-]+):\s*([^;]+);/g)].map((d) => [d[1], d[2].trim()]),
+    ),
+  }))
+}
+
+const boardRules = rules(read('tokens/board.css'))
+const board = Object.assign({}, ...boardRules.map((r) => r.tokens)) as Record<string, string>
+const boardThemes = boardRules.filter((r) => r.selector.includes('data-board-theme'))
 
 // --- WCAG contrast from oklch tokens -------------------------------------
 
@@ -83,13 +96,42 @@ describe.each([
   })
 })
 
-describe('board tokens', () => {
-  it('keep coordinates legible on their squares', () => {
+describe('board themes', () => {
+  const REQUIRED = [
+    '--board-square-light',
+    '--board-square-dark',
+    '--board-coordinate-on-light',
+    '--board-coordinate-on-dark',
+  ]
+
+  it('include green (the default), brown and blue', () => {
+    const names = boardThemes.map((r) => /data-board-theme='([\w-]+)'/.exec(r.selector)?.[1])
+    expect(names).toEqual(expect.arrayContaining(['green', 'brown', 'blue']))
+  })
+
+  it.each(boardThemes.map((r) => [r.selector, r.tokens] as const))(
+    '%s defines the same tokens as every other theme and keeps coordinates legible',
+    (_selector, tokens) => {
+      expect(Object.keys(tokens).sort()).toEqual([...REQUIRED].sort())
+      expect(
+        contrast(tokens['--board-coordinate-on-light'], tokens['--board-square-light']),
+      ).toBeGreaterThanOrEqual(4.5)
+      expect(
+        contrast(tokens['--board-coordinate-on-dark'], tokens['--board-square-dark']),
+      ).toBeGreaterThanOrEqual(3)
+    },
+  )
+
+  it('pieces stay visible on both square colors', () => {
+    for (const theme of boardThemes) {
+      for (const square of ['--board-square-light', '--board-square-dark']) {
+        expect(contrast(board['--piece-glyph-black'], theme.tokens[square])).toBeGreaterThanOrEqual(
+          3,
+        )
+      }
+    }
     expect(
-      contrast(board['--board-coordinate-on-light'], board['--board-square-light']),
-    ).toBeGreaterThanOrEqual(4.5)
-    expect(
-      contrast(board['--board-coordinate-on-dark'], board['--board-square-dark']),
+      contrast(board['--piece-glyph-white'], board['--piece-glyph-outline']),
     ).toBeGreaterThanOrEqual(3)
   })
 })
