@@ -151,4 +151,24 @@ describe('saved boards schema migration', () => {
     expect(migrateSavedBoards(null, 1)).toEqual({ boards: [] })
     expect(migrateSavedBoards({ boards: 'many' }, 2)).toEqual({ boards: [] })
   })
+
+  it('repairs corrupt data saved under the current version when the app starts', async () => {
+    const good = { id: 'ok', name: 'Fine', fen: STARTING_FEN, pgn: null, orientation: 'white' }
+    localStorage.setItem(
+      SAVED_BOARDS_KEY,
+      JSON.stringify({
+        version: SAVED_BOARDS_VERSION,
+        state: { boards: [{ ...good, savedAt: 1 }, { id: 'bad', fen: 'not a fen' }, 'junk'] },
+      }),
+    )
+    await useSavedBoards.persist.rehydrate()
+    expect(useSavedBoards.getState().boards).toEqual([{ ...good, savedAt: 1 }])
+
+    localStorage.setItem(
+      SAVED_BOARDS_KEY,
+      JSON.stringify({ version: SAVED_BOARDS_VERSION, state: { boards: 'many' } }),
+    )
+    await useSavedBoards.persist.rehydrate()
+    expect(useSavedBoards.getState().boards).toEqual([])
+  })
 })

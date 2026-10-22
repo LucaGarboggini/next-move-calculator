@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { LOCALES, type Locale } from '@/i18n'
+import { createMerge } from './migrate'
 
 export type LocalePreference = 'system' | Locale
 
@@ -33,6 +34,7 @@ export const useLocaleStore = create<LocaleState>()(
       version: VERSION,
       partialize: ({ preference }) => ({ preference }),
       migrate: migrateLocale,
+      merge: createMerge(migrateLocale),
     },
   ),
 )

@@ -1,6 +1,7 @@
 import {
   ANALYSIS_SETTINGS_KEY,
   DEFAULT_ANALYSIS_SETTINGS,
+  LOCALE_STORAGE_KEY,
   THEME_STORAGE_KEY,
   isAnalysisRunning,
   migrateAnalysisSettings,
@@ -40,13 +41,33 @@ describe('theme state', () => {
     expect(migrateTheme({ preference: 'neon' })).toEqual({ preference: 'system' })
     expect(migrateTheme(null)).toEqual({ preference: 'system' })
   })
+
+  it('repairs a corrupt preference saved under the current version', async () => {
+    localStorage.setItem(
+      THEME_STORAGE_KEY,
+      JSON.stringify({ version: 1, state: { preference: 'neon' } }),
+    )
+    await useThemeStore.persist.rehydrate()
+    expect(useThemeStore.getState().preference).toBe('system')
+  })
 })
 
 describe('locale state', () => {
+  beforeEach(() => localStorage.clear())
+
   it('defaults to system and migrates safely', () => {
     expect(useLocaleStore.getState().preference).toBe('system')
     expect(migrateLocale({ preference: 'pt-BR' })).toEqual({ preference: 'pt-BR' })
     expect(migrateLocale({ preference: 'xx' })).toEqual({ preference: 'system' })
+  })
+
+  it('repairs a corrupt preference saved under the current version', async () => {
+    localStorage.setItem(
+      LOCALE_STORAGE_KEY,
+      JSON.stringify({ version: 1, state: { preference: 'xx' } }),
+    )
+    await useLocaleStore.persist.rehydrate()
+    expect(useLocaleStore.getState().preference).toBe('system')
   })
 })
 
@@ -104,6 +125,19 @@ describe('analysis settings', () => {
       DEFAULT_ANALYSIS_SETTINGS,
     )
     expect(migrateAnalysisSettings(null)).toEqual(DEFAULT_ANALYSIS_SETTINGS)
+  })
+
+  it('repairs corrupt values saved under the current version', async () => {
+    localStorage.setItem(
+      ANALYSIS_SETTINGS_KEY,
+      JSON.stringify({ version: 1, state: { multiPv: 'many', depth: 20, movetimeSec: 999 } }),
+    )
+    await useAnalysisSettings.persist.rehydrate()
+    expect(useAnalysisSettings.getState()).toMatchObject({
+      ...DEFAULT_ANALYSIS_SETTINGS,
+      depth: 20,
+      movetimeSec: 60,
+    })
   })
 })
 

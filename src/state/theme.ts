@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { createMerge } from './migrate'
 
 export const THEME_PREFERENCES = ['system', 'light', 'dark'] as const
 export type ThemePreference = (typeof THEME_PREFERENCES)[number]
@@ -44,6 +45,7 @@ export const useThemeStore = create<ThemeState>()(
       version: VERSION,
       partialize: ({ preference }) => ({ preference }),
       migrate: migrateTheme,
+      merge: createMerge(migrateTheme),
     },
   ),
 )

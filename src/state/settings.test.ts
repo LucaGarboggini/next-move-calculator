@@ -1,4 +1,10 @@
-import { DEFAULT_SETTINGS, SETTINGS_KEY, migrateSettings, useSettings } from './settings'
+import {
+  DEFAULT_SETTINGS,
+  SETTINGS_KEY,
+  SETTINGS_VERSION,
+  migrateSettings,
+  useSettings,
+} from './settings'
 
 const stored = () =>
   JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? '{}') as {
@@ -46,6 +52,21 @@ describe('settings', () => {
       autoQueen: true,
       pieceTheme: 'glyph',
       notation: 'san',
+    })
+  })
+
+  it('repairs corrupt values saved under the current version', async () => {
+    localStorage.setItem(
+      SETTINGS_KEY,
+      JSON.stringify({
+        version: SETTINGS_VERSION,
+        state: { engineSize: 'huge', notation: 42, autoQueen: true },
+      }),
+    )
+    await useSettings.persist.rehydrate()
+    expect(useSettings.getState()).toMatchObject({
+      ...DEFAULT_SETTINGS,
+      autoQueen: true,
     })
   })
 

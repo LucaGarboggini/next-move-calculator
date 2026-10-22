@@ -8,7 +8,7 @@ Users choose notation, auto-queen, engine size, themes and language, and keep na
 
 ## Decision
 
-- **One migration mechanism.** `state/migrate.ts` exports `createMigrate({ version, migrations, sanitize })`, which builds the `migrate` function of a Zustand `persist` store. `migrations[n]` upgrades what version `n` wrote to version `n + 1`; a schema change is: bump `version`, add `migrations[oldVersion]`, add a test with the old payload. Data then always goes through `sanitize`, so corrupt, hand-edited or newer-than-known data is repaired field by field and never discarded wholesale. Saved boards drop only the entries that are unusable (bad FEN, empty name, duplicate id).
+- **One migration mechanism.** `state/migrate.ts` exports `createMigrate({ version, migrations, sanitize })`, which builds the `migrate` function of a Zustand `persist` store. `migrations[n]` upgrades what version `n` wrote to version `n + 1`; a schema change is: bump `version`, add `migrations[oldVersion]`, add a test with the old payload. Data then always goes through `sanitize`, so corrupt, hand-edited or newer-than-known data is repaired field by field and never discarded wholesale. Zustand calls `migrate` only when the stored version differs, so every persisted store also sets `merge: createMerge(sanitize)`, which sanitizes data saved under the current version. Saved boards drop only the entries that are unusable (bad FEN, empty name, duplicate id).
 - **Schema history is documented where it lives** (`state/savedBoards.ts`). Saved boards are at version 2: version 1 stored `{ id, name, fen, savedAt }`; version 2 adds `pgn` (the game up to the move on screen) and `orientation`. `state/savedBoards.test.ts` and `e2e/settings.spec.ts` write the exact version-1 payload to storage and check the boards still load, are upgraded, and keep working. That is the proof the mechanism does what it claims.
 - **Stores.** `useSettings` (`nmc-settings`: notation, auto-queen, engine size, board theme, piece theme, shortcuts on/off), `useSavedBoards` (`nmc-saved-boards`). Theme and language keep their own stores because the theme is also read by an inline script before first paint. Every write goes through the same sanitizer as a migration.
 - **`state` may import `board`**, only for the theme catalogue, so the persisted settings can validate theme ids. The alternative (state holding unchecked strings) lets a stale id from storage reach the board.
@@ -21,6 +21,6 @@ Users choose notation, auto-queen, engine size, themes and language, and keep na
 
 ## Consequences
 
-- A new persisted store gets versioning and repair by using `createMigrate`; forgetting a migration shows up as a failing test with the old payload, not as a user's lost data.
+- A new persisted store gets versioning and repair by using `createMigrate` and `createMerge`; forgetting a migration shows up as a failing test with the old payload, not as a user's lost data.
 - Settings that only matter at use time (notation, themes) are read by the component that needs them from the store, so they update live without prop drilling.
 - Single-key shortcuts exist, so the off switch is part of the product, not an option.

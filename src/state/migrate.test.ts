@@ -1,4 +1,4 @@
-import { createMigrate } from './migrate'
+import { createMerge, createMigrate } from './migrate'
 
 interface Current {
   name: string
@@ -42,5 +42,22 @@ describe('createMigrate', () => {
     const stored = { title: 'E' }
     migrate(stored, 1)
     expect(stored).toEqual({ title: 'E' })
+  })
+})
+
+describe('createMerge', () => {
+  const merge = createMerge((state) => ({
+    name: typeof state.name === 'string' ? state.name : 'untitled',
+  }))
+  const current = { name: 'default', rename: () => undefined }
+
+  it('sanitizes what was loaded and keeps the rest of the store, actions included', () => {
+    expect(merge({ name: 'F' }, current)).toEqual({ ...current, name: 'F' })
+    expect(merge({ name: 42, extra: true }, current)).toEqual({ ...current, name: 'untitled' })
+    expect(merge('text', current)).toEqual({ ...current, name: 'untitled' })
+  })
+
+  it('leaves the store alone when nothing was stored', () => {
+    expect(merge(undefined, current)).toBe(current)
   })
 })

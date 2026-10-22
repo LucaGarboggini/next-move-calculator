@@ -69,4 +69,10 @@ export {
   type SavedBoard,
   type SavedBoardInput,
 } from './savedBoards'
-export { createMigrate, type MigrateOptions, type Migrations, type PersistedState } from './migrate'
+export {
+  createMerge,
+  createMigrate,
+  type MigrateOptions,
+  type Migrations,
+  type PersistedState,
+} from './migrate'
