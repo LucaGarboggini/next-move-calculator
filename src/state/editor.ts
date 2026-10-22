@@ -9,6 +9,8 @@ import {
   importText,
   makeFen,
   makePgn,
+  movePiece,
+  placePieces,
   pushMove,
   setCastlingRight,
   setEpSquare,
@@ -60,8 +62,12 @@ interface EditorState {
   flip: () => void
   setOrientation: (orientation: Color) => void
 
-  /** New piece placement from the board (drag, drop, tap tool, keyboard). */
-  setPieces: (pieces: Setup['pieces']) => void
+  /**
+   * New piece placement from the board (drag, drop, tap tool, keyboard). `move` is set when the
+   * board moved one piece; the move is then applied by the editing rules (a king's two-file move
+   * may castle). Castling rights the new pieces cannot hold are dropped.
+   */
+  setPieces: (pieces: Setup['pieces'], move?: Pick<Move, 'from' | 'to'>) => void
   setTurn: (turn: Color) => void
   setCastling: (color: Color, side: CastlingSide, value: boolean) => void
   setEpSquare: (square: Square | undefined) => void
@@ -122,7 +128,8 @@ export const useEditorStore = create<EditorState>()((set, get) => {
     flip: () =>
       set(({ orientation }) => ({ orientation: orientation === 'white' ? 'black' : 'white' })),
 
-    setPieces: (pieces) => change((setup) => ({ ...setup, pieces })),
+    setPieces: (pieces, move) =>
+      change((setup) => (move ? movePiece(setup, move.from, move.to) : placePieces(setup, pieces))),
     // A new side to move invalidates any en passant square, which belongs to the other side.
     setTurn: (turn) => change((setup) => setEpSquare(setTurn(setup, turn), undefined)),
     setCastling: (color, side, value) =>

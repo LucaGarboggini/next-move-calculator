@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react'
-import { STARTING_FEN, makeFen } from '@/core'
+import { STARTING_FEN, makeFen, setPiece } from '@/core'
 import {
   documentFen,
   documentPgn,
@@ -32,6 +32,28 @@ describe('editor store', () => {
     expect(fen()).toBe('4k3/8/8/3pP3/8/8/8/R3K2R b K - 0 2')
     store().setEpSquare(undefined)
     expect(fen()).toBe('4k3/8/8/3pP3/8/8/8/R3K2R b K - 0 2')
+  })
+
+  it.each([
+    ['e1', 'c1', '2kr3r/8/8/8/8/8/8/2KR3R w - - 0 1'],
+    ['e1', 'g1', '2kr3r/8/8/8/8/8/8/R4RK1 w - - 0 1'],
+  ] as const)(
+    'castles when the board moves the king %s-%s with the right; one undo step',
+    (from, to, castled) => {
+      const before = '2kr3r/8/8/8/8/8/8/R3K2R w KQ - 0 1'
+      store().load(before)
+      const { [from]: king, ...rest } = store().document.setup.pieces
+      // What the board reports: the king alone moved; the rook is left to the store.
+      store().setPieces({ ...rest, [to]: king }, { from, to })
+      expect(fen()).toBe(castled)
+      store().undo()
+      expect(fen()).toBe(before)
+    },
+  )
+
+  it('drops castling rights that edited pieces can no longer hold', () => {
+    store().setPieces(setPiece(store().document.setup, 'h1', undefined).pieces)
+    expect(fen()).toBe('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBN1 w Qkq - 0 1')
   })
 
   it('undoes and redoes edits; a new edit clears the redo stack', () => {
