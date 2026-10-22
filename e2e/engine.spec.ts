@@ -91,15 +91,17 @@ test.describe('Stockfish in the browser', () => {
     await expect(page.getByRole('main')).toBeVisible()
   })
 
-  test('solves a mate in 3 with the Lite engine', async ({ page }) => {
+  test('solves a mate in 3 with the Lite engine', async ({ page, browserName }) => {
     const result = await solve(page, 'r5rk/5p1p/5R2/4B3/8/8/7P/7K w - - 0 1', 12)
     expect(result.reason).toBe('completed')
     expect(result.move).toBe('f6a6')
     expect(result.score).toEqual({ kind: 'mate', moves: 3 })
     expect(result.variant).toBe('lite')
     expect(result.status).toBe('ready')
-    // Multi-threaded when the page is cross-origin isolated, single-threaded otherwise.
-    expect(result.maxThreads > 1).toBe(result.isolated && result.cores > 1)
+    // Multi-threaded when the page is cross-origin isolated, except on WebKit (ADR 0014).
+    expect(result.maxThreads > 1).toBe(
+      result.isolated && result.cores > 1 && browserName !== 'webkit',
+    )
     expect(result.progress[0]?.phase).toBe('download')
     expect(result.progress.at(-1)?.phase).toBe('starting')
   })

@@ -1,6 +1,6 @@
 # 0013 — Local release, LAN access and the tablebase
 
-Status: accepted
+Status: accepted; amended by [0014](0014-single-threaded-engine-on-webkit.md) (an iPad gets one thread over HTTPS too)
 
 ## Context
 

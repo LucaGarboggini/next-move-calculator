@@ -44,10 +44,10 @@ npm run preview    # serves dist/ with COOP/COEP: http://localhost:4173
 
 Open the **Network** address on the tablet, on the same Wi-Fi. Two modes:
 
-| Command               | Tablet opens | What you get                                                                                                                     |
-| --------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run preview`     | `http://…`   | Everything, with a single-threaded engine. Browsers allow threads, Cache Storage and copy-to-clipboard only in a secure context. |
-| `npm run preview:lan` | `https://…`  | Everything, multi-threaded, Full engine cached. Self-signed certificate: accept the browser's warning once.                      |
+| Command               | Tablet opens | What you get                                                                                                                                                        |
+| --------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run preview`     | `http://…`   | Everything, with a single-threaded engine. Browsers allow threads, Cache Storage and copy-to-clipboard only in a secure context.                                    |
+| `npm run preview:lan` | `https://…`  | Everything, multi-threaded (except on Safari and iOS, which always use one thread), Full engine cached. Self-signed certificate: accept the browser's warning once. |
 
 If the tablet cannot connect, check the computer's firewall and that both devices are on the same network (guest Wi-Fi often isolates clients). See [ADR 0013](docs/adr/0013-local-release-and-lan.md).
 
@@ -126,7 +126,7 @@ See [ADR 0005](docs/adr/0005-chess-core-domain.md). Standard chess only.
 `src/engine/` exports the `Engine` interface and `createStockfishEngine({ size: 'lite' | 'full' })`; features never see Stockfish, UCI or workers.
 
 ```ts
-const engine = createStockfishEngine() // Lite; threads when cross-origin isolated
+const engine = createStockfishEngine() // Lite; threads when cross-origin isolated (not on WebKit)
 const search = engine.analyze(position, { limits: { depth: 20 }, multiPv: 3 })
 for await (const event of search.events) {
   if (event.type === 'info')
@@ -137,7 +137,7 @@ for await (const event of search.events) {
 
 - Every search has an id that is on all its events; a new `analyze` stops the old search and waits for it, so a stale result can never appear. `superseded` results must be ignored.
 - `engine.subscribe` reports status and download progress (`LoadProgress`); Full (~94 MB) is downloaded once and cached in Cache Storage.
-- `detectCapabilities`, `recommendedSettings` and `fullEngineWarnings` give device-aware defaults; `engine.configure({ threads, hashMb })` applies at the next search.
+- `detectCapabilities`, `recommendedSettings` and `fullEngineWarnings` give device-aware defaults; `engine.configure({ threads, hashMb })` applies at the next search. Safari and every iOS browser (WebKit) always get the single-threaded build, because the threaded one can hang there ([ADR 0014](docs/adr/0014-single-threaded-engine-on-webkit.md)).
 - To add an engine, implement `Engine`, or for any UCI engine give `UciEngine` a `connect()` that returns a `UciTransport`.
 
 See [ADR 0008](docs/adr/0008-engine-layer.md).
@@ -199,7 +199,7 @@ Every string goes through `useTranslation()`. Core strings are in `src/i18n/loca
 
 ## Decisions
 
-Short ADRs in [`docs/adr/`](docs/adr/): [stack](docs/adr/0001-stack.md), [layers](docs/adr/0002-layered-architecture.md), [tokens and theming](docs/adr/0003-design-tokens-and-theming.md), [i18n](docs/adr/0004-i18n.md), [chess core](docs/adr/0005-chess-core-domain.md), [board](docs/adr/0006-board-layer.md), [editor](docs/adr/0007-position-editor.md), [engine](docs/adr/0008-engine-layer.md), [analysis](docs/adr/0009-analysis-feature.md), [settings and persistence](docs/adr/0010-settings-persistence-shortcuts.md), [loading performance](docs/adr/0011-loading-performance.md), [accessibility](docs/adr/0012-accessibility-verification.md), [local release and LAN](docs/adr/0013-local-release-and-lan.md).
+Short ADRs in [`docs/adr/`](docs/adr/): [stack](docs/adr/0001-stack.md), [layers](docs/adr/0002-layered-architecture.md), [tokens and theming](docs/adr/0003-design-tokens-and-theming.md), [i18n](docs/adr/0004-i18n.md), [chess core](docs/adr/0005-chess-core-domain.md), [board](docs/adr/0006-board-layer.md), [editor](docs/adr/0007-position-editor.md), [engine](docs/adr/0008-engine-layer.md), [analysis](docs/adr/0009-analysis-feature.md), [settings and persistence](docs/adr/0010-settings-persistence-shortcuts.md), [loading performance](docs/adr/0011-loading-performance.md), [accessibility](docs/adr/0012-accessibility-verification.md), [local release and LAN](docs/adr/0013-local-release-and-lan.md), [single-threaded engine on WebKit](docs/adr/0014-single-threaded-engine-on-webkit.md).
 
 ## Hosting requirements
 
@@ -210,7 +210,7 @@ Cross-Origin-Opener-Policy: same-origin
 Cross-Origin-Embedder-Policy: require-corp
 ```
 
-Without these the app falls back to single-threaded mode. Also:
+Without these the app falls back to single-threaded mode (Safari and iOS always use it, see ADR 0014). Also:
 
 - **HTTPS** (or `localhost`): cross-origin isolation, Cache Storage (Full engine cache) and the clipboard need a secure context.
 - Serve `engine/*.wasm` as `application/wasm` (up to ~99 MB per file; Full builds are in `dist/engine/`) and `engine/*.js`; allow same-origin blob workers.
