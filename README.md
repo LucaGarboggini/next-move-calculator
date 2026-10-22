@@ -2,7 +2,7 @@
 
 Open-source web app, inspired by nextchessmove.com: set up any chess position and get the best move(s), evaluation and lines, computed 100% in your browser on phone, tablet and desktop. No backend.
 
-> Status: design system, app shell, chess core, board and position editor done. The analysis and saved-boards features are not implemented yet.
+> Status: design system, app shell, chess core, board, position editor and engine layer done. The analysis and saved-boards features are not implemented yet.
 
 ## Requirements
 
@@ -16,11 +16,14 @@ npm install
 npm run dev        # http://localhost:5173
 ```
 
+`npm install` also copies the Stockfish builds into `public/engine/` (git-ignored). Set `ENGINE_SIZES=lite` to skip the ~190 MB of Full builds.
+
 ## Scripts
 
 | Script                                  | What it does                                                                                                |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | `npm run dev` / `preview`               | Dev / production-preview server (both send COOP/COEP)                                                       |
+| `npm run engine:fetch`                  | Copy the Stockfish builds into `public/engine/` (runs on install, dev and build)                            |
 | `npm run build`                         | Typecheck and build the static bundle into `dist/`                                                          |
 | `npm run lint`                          | ESLint, including layer-boundary rules                                                                      |
 | `npm run typecheck`                     | `tsc -b` (strict)                                                                                           |
@@ -60,6 +63,27 @@ src/
 - `toWhiteScore` / `formatEval`: engine scores from White's point of view, mates as `#N`.
 
 See [ADR 0005](docs/adr/0005-chess-core-domain.md). Standard chess only.
+
+## Engine
+
+`src/engine/` exports the `Engine` interface and `createStockfishEngine({ size: 'lite' | 'full' })`; features never see Stockfish, UCI or workers.
+
+```ts
+const engine = createStockfishEngine() // Lite; threads when cross-origin isolated
+const search = engine.analyze(position, { limits: { depth: 20 }, multiPv: 3 })
+for await (const event of search.events) {
+  if (event.type === 'info')
+    show(event.searchId, event.info) // score is from the side to move
+  else done(event.reason, event.move) // 'completed' | 'stopped' | 'superseded' | 'disposed' | 'failed'
+}
+```
+
+- Every search has an id that is on all its events; a new `analyze` stops the old search and waits for it, so a stale result can never appear. `superseded` results must be ignored.
+- `engine.subscribe` reports status and download progress (`LoadProgress`); Full (~94 MB) is downloaded once and cached in Cache Storage.
+- `detectCapabilities`, `recommendedSettings` and `fullEngineWarnings` give device-aware defaults; `engine.configure({ threads, hashMb })` applies at the next search.
+- To add an engine, implement `Engine`, or for any UCI engine give `UciEngine` a `connect()` that returns a `UciTransport`.
+
+See [ADR 0008](docs/adr/0008-engine-layer.md).
 
 ## Board
 
@@ -102,7 +126,7 @@ Cross-Origin-Opener-Policy: same-origin
 Cross-Origin-Embedder-Policy: require-corp
 ```
 
-Without these the app falls back to single-threaded mode. Hosting itself is out of scope until the app is finished.
+Without these the app falls back to single-threaded mode. The host must also serve `engine/*.wasm` (up to ~99 MB per file; Full builds are in `dist/engine/`) and allow same-origin blob workers. Hosting itself is out of scope until the app is finished.
 
 ## License
 

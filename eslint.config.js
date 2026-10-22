@@ -80,7 +80,14 @@ function restrictionsFor(module) {
 }
 
 export default defineConfig([
-  globalIgnores(['dist', 'storybook-static', 'coverage', 'playwright-report', 'test-results']),
+  globalIgnores([
+    'dist',
+    'storybook-static',
+    'coverage',
+    'playwright-report',
+    'test-results',
+    'public/engine',
+  ]),
   {
     files: ['**/*.{ts,tsx,js}'],
     extends: [
