@@ -123,7 +123,10 @@ test.describe('analysis', () => {
     await calculate(page).click()
     await expect(page.getByTestId('best-move')).toBeVisible({ timeout: 60_000 })
 
-    await page.getByRole('radio', { name: 'Black to move' }).click()
+    // Lines streaming in above the position panel re-wrap as they grow and move it, so on a busy
+    // machine a click aimed at the radio can land beside it. The keyboard cannot miss.
+    await page.getByRole('radio', { name: 'Black to move' }).focus()
+    await page.keyboard.press('Space')
 
     await expect(calculate(page)).toBeVisible()
     await expect(page.getByTestId('best-move')).toHaveCount(0)
