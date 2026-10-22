@@ -1,0 +1,150 @@
+/* Maps design tokens (./tokens) into Tailwind utilities. Components use only
+ * these utilities, so they never carry raw visual values. */
+
+@custom-variant dark (&:is(.dark *));
+
+/* Shell is side by side on wide screens and in landscape; stacked otherwise. */
+@custom-variant split {
+  @media (min-width: 64rem), (orientation: landscape) {
+    @slot;
+  }
+}
+
+@theme inline {
+  --font-sans: var(--font-family-sans);
+  --font-heading: var(--font-family-sans);
+  --font-mono: var(--font-family-mono);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-scrim: var(--scrim);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-board-light: var(--board-square-light);
+  --color-board-dark: var(--board-square-dark);
+  --color-board-highlight: var(--board-highlight);
+  --color-board-last-move: var(--board-last-move);
+  --color-board-check: var(--board-check);
+  --color-board-coordinate-on-light: var(--board-coordinate-on-light);
+  --color-board-coordinate-on-dark: var(--board-coordinate-on-dark);
+  --color-eval-white: var(--eval-white);
+  --color-eval-black: var(--eval-black);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  --shadow-raised: var(--elevation-raised);
+  --shadow-overlay: var(--elevation-overlay);
+  --ease-standard: var(--motion-ease-standard);
+
+  /* h-control-md, size-control-sm, min-h-control-lg, ... */
+  --spacing-control-sm: var(--control-sm);
+  --spacing-control-md: var(--control-md);
+  --spacing-control-lg: var(--control-lg);
+
+  --container-panel: var(--layout-panel-width);
+  --container-board: var(--layout-board-max);
+}
+
+@theme {
+  --spacing-safe-top: env(safe-area-inset-top, 0px);
+  --spacing-safe-right: env(safe-area-inset-right, 0px);
+  --spacing-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --spacing-safe-left: env(safe-area-inset-left, 0px);
+  /* Minimum touch target (WCAG 2.2 / CLAUDE.md: >= 44px). */
+  --spacing-touch: 2.75rem;
+}
+
+@utility z-sticky {
+  z-index: var(--z-sticky);
+}
+@utility z-overlay {
+  z-index: var(--z-overlay);
+}
+@utility z-modal {
+  z-index: var(--z-modal);
+}
+@utility z-popover {
+  z-index: var(--z-popover);
+}
+@utility z-toast {
+  z-index: var(--z-toast);
+}
+@utility z-tooltip {
+  z-index: var(--z-tooltip);
+}
+@utility motion-fast {
+  transition-duration: var(--motion-duration-fast);
+}
+@utility motion-base {
+  transition-duration: var(--motion-duration-base);
+}
+@utility motion-slow {
+  transition-duration: var(--motion-duration-slow);
+}
+
+/* Largest square that fits the nearest size container (the board area). */
+@utility board-fit {
+  width: min(100cqw, 100cqh, var(--layout-board-max));
+  aspect-ratio: 1;
+}
+
+/* Enlarges the pointer hit area of small controls to the touch minimum on
+ * coarse pointers without changing their visual size. */
+@utility hit-area {
+  position: relative;
+  @media (pointer: coarse) {
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: max(100%, var(--spacing-touch));
+      height: max(100%, var(--spacing-touch));
+      transform: translate(-50%, -50%);
+    }
+  }
+}
+
+/* Makes the element a size container so children can size against it (cqw/cqh). */
+@utility contain-box {
+  container-type: size;
+}

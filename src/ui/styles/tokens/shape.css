@@ -1,0 +1,4 @@
+/* Shape tokens: one base radius, everything else derives from it in theme.css. */
+:root {
+  --radius: 0.625rem;
+}

@@ -1,0 +1,20 @@
+/* Spacing and sizing tokens: control sizes, touch targets, shell layout. */
+:root {
+  /* Interactive control heights. Compact for fine pointers, >= 44px for touch. */
+  --control-sm: 2rem;
+  --control-md: 2.25rem;
+  --control-lg: 2.5rem;
+
+  --layout-gutter: 1rem;
+  --layout-gap: 1rem;
+  --layout-panel-width: clamp(18rem, 40vw, 26rem);
+  --layout-board-max: 44rem;
+}
+
+@media (pointer: coarse) {
+  :root {
+    --control-sm: 2.75rem;
+    --control-md: 2.75rem;
+    --control-lg: 3rem;
+  }
+}

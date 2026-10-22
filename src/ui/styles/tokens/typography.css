@@ -1,0 +1,8 @@
+/* Typography tokens: families and the font that provides them. */
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
+
+:root {
+  --font-family-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-family-mono: 'Geist Mono Variable', ui-monospace, monospace;
+}

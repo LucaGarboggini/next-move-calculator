@@ -2,7 +2,7 @@
 
 Open-source web app, inspired by nextchessmove.com: set up any chess position and get the best move(s), evaluation and lines, computed 100% in your browser on phone, tablet and desktop. No backend.
 
-> Status: project scaffold. The editor, analysis, settings and saved-boards features are not implemented yet.
+> Status: design system and app shell done (tokens, light/dark themes, primitives, responsive shell, i18n). The editor, analysis and saved-boards features are not implemented yet.
 
 ## Requirements
 
@@ -33,7 +33,7 @@ npm run dev        # http://localhost:5173
 ## Architecture
 
 ```
-app → features → (ui, board, state) → (engine, core)
+app → features → (ui, board, state, i18n) → (engine, core)
 ```
 
 Lower layers never import higher ones; this is enforced by ESLint (`eslint.config.js`) and covered by `tools/layer-rules.test.ts`. Each module exposes a public `index.ts`; other modules import only that. Third-party libraries (chessground, chessops, stockfish) are used only inside their adapter. See [`docs/adr/`](docs/adr/) for decisions.
@@ -44,12 +44,35 @@ src/
   engine/    Engine interface, Stockfish worker adapter, UCI client
   board/     BoardView interface, chessground adapter
   ui/        design system: tokens, primitives, layout (shadcn/ui)
-  state/     Zustand stores
+  i18n/      translations (en, pt-BR) and locale detection
+  state/     Zustand stores (theme, locale; persisted and versioned)
   features/  editor, analysis, settings, saved-boards
   app/       shell, providers, panel registry
 ```
 
-New panels are added with `registerPanel` in `app/`, not by editing the shell. Visual values come from design tokens in `src/ui/styles/tokens.css`.
+## Design system
+
+- **Tokens** live in [`src/ui/styles/tokens/`](src/ui/styles/tokens) (colors per theme, board, typography, shape, layout, motion, z-index) and are mapped into Tailwind by `src/ui/styles/theme.css`. Components use only those utilities; `npm test` rejects raw colors and px/rem values outside token files, mismatched light/dark token sets and WCAG AA contrast failures.
+- **Re-theme** by editing token files only. Add a theme by defining the same token names under a new selector; board themes use `[data-board-theme="..."]`.
+- **Theme** is `system` (default), `light` or `dark`, switchable in the header; it follows the OS live and is remembered.
+- **Primitives** (shadcn/ui, restyled via tokens) are in `src/ui/primitives`, each with a Storybook story. Controls are compact for mouse and >= 44 px on touch.
+- **Storybook** (`npm run storybook`) has theme and locale toolbars and the viewport toolbar for phone/tablet/desktop.
+
+## Shell and panels
+
+The shell (`src/app/Shell.tsx`, `src/ui/layout`) has a header, a board slot and a panel slot: stacked with the board first on phones and portrait tablets, side by side on desktop and in landscape. New panels are registered, never added to the shell:
+
+```ts
+import { registerPanel } from '@/app'
+
+registerPanel({ id: 'analysis', order: 10, component: AnalysisPanel })
+```
+
+Call it from `registerDefaultPanels` in `src/app/panels/defaults.ts`.
+
+## Internationalisation
+
+Every string goes through `useTranslation()`. Core strings are in `src/i18n/locales`; a feature registers its own namespace with `registerTranslations`. To add a language, add a locale file and list it in `src/i18n/locales.ts`. See [ADR 0004](docs/adr/0004-i18n.md).
 
 ## Hosting requirements
 

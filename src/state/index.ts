@@ -1,2 +1,18 @@
 // Public API of the state layer: Zustand stores (persisted ones are versioned with migrations).
-export {}
+export {
+  THEME_PREFERENCES,
+  THEME_STORAGE_KEY,
+  isThemePreference,
+  migrateTheme,
+  resolveTheme,
+  useThemeStore,
+  type ResolvedTheme,
+  type ThemePreference,
+} from './theme'
+export {
+  LOCALE_STORAGE_KEY,
+  isLocalePreference,
+  migrateLocale,
+  useLocaleStore,
+  type LocalePreference,
+} from './locale'

@@ -1,0 +1,45 @@
+/* Dark theme: same token names as the light theme, different values. */
+.dark {
+  --background: oklch(0.18 0.006 100);
+  --foreground: oklch(0.96 0.005 100);
+  --card: oklch(0.22 0.007 100);
+  --card-foreground: oklch(0.96 0.005 100);
+  --popover: oklch(0.24 0.007 100);
+  --popover-foreground: oklch(0.96 0.005 100);
+  --primary: oklch(0.78 0.13 155);
+  --primary-foreground: oklch(0.2 0.04 155);
+  --secondary: oklch(0.28 0.008 100);
+  --secondary-foreground: oklch(0.96 0.005 100);
+  --muted: oklch(0.28 0.008 100);
+  --muted-foreground: oklch(0.74 0.01 100);
+  --accent: oklch(0.32 0.04 155);
+  --accent-foreground: oklch(0.95 0.02 155);
+  --destructive: oklch(0.72 0.17 25);
+  --destructive-foreground: oklch(0.2 0.04 25);
+  --success: oklch(0.75 0.14 150);
+  --success-foreground: oklch(0.2 0.05 150);
+  --warning: oklch(0.82 0.14 82);
+  --warning-foreground: oklch(0.25 0.05 80);
+  --border: oklch(1 0 0 / 14%);
+  --input: oklch(0.6 0.01 100);
+  --ring: oklch(0.7 0.12 155);
+  --chart-1: oklch(0.75 0.12 155);
+  --chart-2: oklch(0.75 0.1 230);
+  --chart-3: oklch(0.82 0.14 82);
+  --chart-4: oklch(0.72 0.16 30);
+  --chart-5: oklch(0.72 0.12 300);
+  --sidebar: oklch(0.22 0.007 100);
+  --sidebar-foreground: oklch(0.96 0.005 100);
+  --sidebar-primary: oklch(0.78 0.13 155);
+  --sidebar-primary-foreground: oklch(0.2 0.04 155);
+  --sidebar-accent: oklch(0.32 0.04 155);
+  --sidebar-accent-foreground: oklch(0.95 0.02 155);
+  --sidebar-border: oklch(1 0 0 / 14%);
+  --sidebar-ring: oklch(0.7 0.12 155);
+
+  --scrim: oklch(0 0 0 / 60%);
+  --elevation-raised: 0 1px 2px 0 oklch(0 0 0 / 40%), 0 1px 3px 0 oklch(0 0 0 / 50%);
+  --elevation-overlay: 0 10px 30px -8px oklch(0 0 0 / 60%);
+
+  color-scheme: dark;
+}

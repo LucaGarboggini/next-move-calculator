@@ -1,0 +1,10 @@
+/* Stacking order. Popovers sit above modals so a Select works inside a Dialog. */
+:root {
+  --z-base: 0;
+  --z-sticky: 10;
+  --z-overlay: 40;
+  --z-modal: 50;
+  --z-popover: 60;
+  --z-toast: 70;
+  --z-tooltip: 80;
+}

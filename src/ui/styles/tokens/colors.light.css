@@ -1,0 +1,47 @@
+/* Light theme: semantic color tokens. A theme is a token set; swapping or
+ * adding one never touches component code. */
+:root {
+  --background: oklch(0.985 0.004 100);
+  --foreground: oklch(0.2 0.01 100);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.01 100);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.01 100);
+  --primary: oklch(0.45 0.09 155);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.945 0.008 100);
+  --secondary-foreground: oklch(0.25 0.01 100);
+  --muted: oklch(0.945 0.008 100);
+  --muted-foreground: oklch(0.47 0.01 100);
+  --accent: oklch(0.925 0.02 155);
+  --accent-foreground: oklch(0.25 0.04 155);
+  --destructive: oklch(0.55 0.22 27);
+  --destructive-foreground: oklch(0.985 0 0);
+  --success: oklch(0.45 0.11 150);
+  --success-foreground: oklch(0.985 0 0);
+  --warning: oklch(0.78 0.15 80);
+  --warning-foreground: oklch(0.25 0.05 80);
+  --border: oklch(0.88 0.008 100);
+  --input: oklch(0.6 0.01 100);
+  --ring: oklch(0.55 0.1 155);
+  --chart-1: oklch(0.55 0.1 155);
+  --chart-2: oklch(0.6 0.1 230);
+  --chart-3: oklch(0.7 0.14 80);
+  --chart-4: oklch(0.6 0.18 30);
+  --chart-5: oklch(0.5 0.12 300);
+  --sidebar: oklch(0.97 0.006 100);
+  --sidebar-foreground: oklch(0.2 0.01 100);
+  --sidebar-primary: oklch(0.45 0.09 155);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.925 0.02 155);
+  --sidebar-accent-foreground: oklch(0.25 0.04 155);
+  --sidebar-border: oklch(0.88 0.008 100);
+  --sidebar-ring: oklch(0.55 0.1 155);
+
+  --scrim: oklch(0 0 0 / 40%);
+
+  --elevation-raised: 0 1px 2px 0 oklch(0 0 0 / 8%), 0 1px 3px 0 oklch(0 0 0 / 10%);
+  --elevation-overlay: 0 10px 30px -8px oklch(0 0 0 / 25%);
+
+  color-scheme: light;
+}
