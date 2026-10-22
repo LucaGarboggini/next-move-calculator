@@ -2,7 +2,7 @@
 
 Open-source web app, inspired by nextchessmove.com: set up any chess position and get the best move(s), evaluation and lines, computed 100% in your browser on phone, tablet and desktop. No backend.
 
-> Status: design system and app shell done (tokens, light/dark themes, primitives, responsive shell, i18n). The editor, analysis and saved-boards features are not implemented yet.
+> Status: design system, app shell and chess core done. The editor, analysis and saved-boards features are not implemented yet.
 
 ## Requirements
 
@@ -49,6 +49,17 @@ src/
   features/  editor, analysis, settings, saved-boards
   app/       shell, providers, panel registry
 ```
+
+## Chess core
+
+`src/core/` is the pure TypeScript chess domain over chessops (no React, no DOM; other layers never see chessops types). It provides:
+
+- `Setup` (editable, not-necessarily-legal position) with FEN parse/make and editing helpers; `validateSetup` lists every problem with a code and severity.
+- `Position` (legal, immutable): legal moves/destinations, `play`, SAN and UCI conversion, status (check, mate, stalemate, insufficient material).
+- `MoveHistory` with undo/redo, and PGN import/export.
+- `toWhiteScore` / `formatEval`: engine scores from White's point of view, mates as `#N`.
+
+See [ADR 0005](docs/adr/0005-chess-core-domain.md). Standard chess only.
 
 ## Design system
 
