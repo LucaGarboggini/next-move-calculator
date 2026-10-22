@@ -184,7 +184,7 @@ export function Board({
     if (!element) return
     const view = createView(element, latest.current.state, {
       onMove: handleViewMove,
-      onEdit: (next) => latest.current.onEdit?.(next),
+      onEdit: (next, move) => latest.current.onEdit?.(next, move),
       onSquareSelect: (square) => latest.current.onSquareSelect?.(square),
     })
     viewRef.current = view
