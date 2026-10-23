@@ -17,6 +17,9 @@ export const en = {
     black: 'Black pieces',
     move: 'Move pieces',
     erase: 'Erase pieces',
+    placing:
+      'Placing {{piece}}: tap squares to add it, as often as you like. Choose “Move pieces” when done.',
+    erasing: 'Erasing: tap pieces on the board to remove them. Choose “Move pieces” when done.',
   },
   actions: {
     label: 'Board actions',

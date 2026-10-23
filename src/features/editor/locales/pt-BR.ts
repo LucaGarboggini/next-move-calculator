@@ -20,6 +20,10 @@ export const ptBR: Widen<EditorMessages> = {
     black: 'Peças pretas',
     move: 'Mover peças',
     erase: 'Apagar peças',
+    placing:
+      'Colocando {{piece}}: toque nas casas para adicionar quantas quiser. Escolha “Mover peças” para terminar.',
+    erasing:
+      'Apagando: toque nas peças do tabuleiro para removê-las. Escolha “Mover peças” para terminar.',
   },
   actions: {
     label: 'Ações do tabuleiro',
