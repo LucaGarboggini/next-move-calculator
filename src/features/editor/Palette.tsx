@@ -8,9 +8,13 @@ import { Button, cn } from '@/ui'
 import { useBoardHandle } from './board-handle'
 import { EDITOR_NAMESPACE } from './i18n'
 
-/** One palette slot; the selected tool gets a thick border and a tinted fill in every theme. */
+/**
+ * One palette slot; the selected tool gets a thick border and a tinted fill in every theme. Slots
+ * are square so pieces centre in them. `cn` does not know the button's `h-control-md` conflicts
+ * with `size-11` and keeps both, so `min-h-11` holds the height at 44 px on every pointer.
+ */
 const SLOT = cn(
-  'flex size-11 h-auto items-center justify-center rounded-md border border-border p-1',
+  'flex size-11 min-h-11 items-center justify-center rounded-md border border-border p-1',
   'aria-pressed:border-2 aria-pressed:border-primary aria-pressed:bg-accent aria-pressed:text-accent-foreground',
   'dark:aria-pressed:border-primary dark:aria-pressed:bg-accent',
 )
