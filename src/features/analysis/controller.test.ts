@@ -149,6 +149,59 @@ describe('AnalysisController', () => {
     expect(controller.running).toBe(false)
   })
 
+  it('tells listeners the best move once a search reaches its limits and its result is shown', async () => {
+    const { engine, controller } = setup()
+    const completions: unknown[] = []
+    const unsubscribe = controller.onComplete((completion) => {
+      completions.push({ ...completion, status: session().status, lines: session().result?.lines })
+    })
+    controller.start(START, DEFAULT_ANALYSIS_SETTINGS)
+    engine.latest.report({ pv: [NF3] })
+    engine.latest.end('completed', E4)
+    await settle()
+    // The engine's final word is the move, even when the last line shown began differently.
+    expect(completions).toEqual([
+      { position: START, move: E4, status: 'completed', lines: [expect.anything()] },
+    ])
+
+    unsubscribe()
+    controller.start(START, DEFAULT_ANALYSIS_SETTINGS)
+    engine.latest.end('completed', E4)
+    await settle()
+    expect(completions).toHaveLength(1)
+  })
+
+  it('never reports a search that was stopped, paused, reset, replaced, failed or had no move', async () => {
+    const { engine, controller } = setup()
+    const listener = vi.fn()
+    controller.onComplete(listener)
+    const run = async (end: () => void) => {
+      controller.start(START, DEFAULT_ANALYSIS_SETTINGS)
+      const search = engine.latest
+      search.report({ pv: [E4] })
+      end()
+      // The engine still answers with a move, as Stockfish does after "stop".
+      search.end('completed', E4)
+      await settle()
+    }
+    await run(() => controller.stop())
+    await run(() => controller.pause())
+    await run(() => controller.reset())
+    await run(() => controller.start(START, DEFAULT_ANALYSIS_SETTINGS))
+    await run(() => controller.dispose())
+
+    controller.start(START, DEFAULT_ANALYSIS_SETTINGS)
+    engine.latest.end('stopped', E4)
+    await settle()
+    controller.start(START, DEFAULT_ANALYSIS_SETTINGS)
+    engine.latest.end('failed', undefined, new Error('boom'))
+    await settle()
+    controller.start(START, DEFAULT_ANALYSIS_SETTINGS)
+    engine.latest.end('completed')
+    await settle()
+    expect(listener).not.toHaveBeenCalled()
+  })
+
   it('flushes what was pending when the search ends', async () => {
     vi.useFakeTimers()
     try {
