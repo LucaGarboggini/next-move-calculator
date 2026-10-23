@@ -14,3 +14,7 @@ export function searchOptions(settings: AnalysisSettings): AnalyzeOptions {
     },
   }
 }
+
+/** Whether a search with these settings reaches a limit by itself, which auto-move needs. */
+export const endsByItself = (settings: AnalysisSettings): boolean =>
+  !settings.infinite || settings.depth !== null

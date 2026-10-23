@@ -1,9 +1,16 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createStockfishEngine, type Engine } from '@/engine'
-import { useEditorSnapshot, useSettings } from '@/state'
+import {
+  analyzablePosition,
+  useAnalysisSettings,
+  useEditorSnapshot,
+  useEditorStore,
+  useSettings,
+} from '@/state'
 import { AnalysisShortcuts } from './AnalysisShortcuts'
 import { AnalysisController } from './controller'
 import { AnalysisControllerContext } from './controller-context'
+import { playOnBoard } from './playOnBoard'
 
 /** Lite or Full, as chosen in the settings when the engine is created. */
 const createDefaultEngine = (): Engine =>
@@ -20,7 +27,7 @@ export interface AnalysisProviderProps {
  * share one search. While mounted it keeps results honest: a search ends and its result is
  * cleared when the position changes, and a search stops when the tab goes to the background.
  * Changing the engine size in the settings drops the running engine; the next search loads the
- * chosen one.
+ * chosen one. With auto-move on, a search that ends by its limits plays its best move.
  */
 export function AnalysisProvider({
   children,
@@ -36,6 +43,19 @@ export function AnalysisProvider({
     analysed.current = fen
     controller.reset()
   }, [controller, fen])
+
+  // Auto-move. Only searches that reach their limits complete (Stop, the tab going to the background
+  // and a position change never do), and only while the board still shows the searched position.
+  // Playing the move changes the position, so the effect above drops the result; nothing restarts.
+  useEffect(
+    () =>
+      controller.onComplete(({ position, move }) => {
+        if (!useAnalysisSettings.getState().autoMove) return
+        if (analyzablePosition(useEditorStore.getState().document)?.fen !== position.fen) return
+        playOnBoard([move])
+      }),
+    [controller],
+  )
 
   useEffect(() => {
     const onVisibility = () => {

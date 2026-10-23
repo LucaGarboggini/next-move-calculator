@@ -18,6 +18,7 @@ import {
 } from '@/ui'
 import { useDeviceLimits, type DeviceLimits } from './hooks'
 import { ANALYSIS_NAMESPACE } from './i18n'
+import { endsByItself } from './options'
 
 const range = (min: number, max: number): number[] =>
   Array.from({ length: max - min + 1 }, (_, i) => min + i)
@@ -34,7 +35,10 @@ export interface SearchSettingsProps {
   limits?: DeviceLimits
 }
 
-/** Time or depth limit, number of lines and, where the browser allows, threads and hash memory. */
+/**
+ * Time or depth limit, auto-move, number of lines and, where the browser allows, threads and hash
+ * memory.
+ */
 export function SearchSettings({ limits }: SearchSettingsProps) {
   const { t } = useTranslation(ANALYSIS_NAMESPACE)
   const detected = useDeviceLimits()
@@ -96,6 +100,25 @@ export function SearchSettings({ limits }: SearchSettingsProps) {
         />
         <p id={`${id}-depth-hint`} className="text-xs text-muted-foreground">
           {t('settings.depth.hint')}
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between gap-2">
+          <Label htmlFor={`${id}-auto-move`}>{t('settings.autoMove.label')}</Label>
+          <Switch
+            id={`${id}-auto-move`}
+            checked={settings.autoMove}
+            aria-describedby={`${id}-auto-move-hint`}
+            onCheckedChange={(autoMove) => update({ autoMove })}
+          />
+        </div>
+        <p
+          id={`${id}-auto-move-hint`}
+          data-testid="auto-move-hint"
+          className="text-xs text-muted-foreground"
+        >
+          {endsByItself(settings) ? t('settings.autoMove.hint') : t('settings.autoMove.needsLimit')}
         </p>
       </div>
 
