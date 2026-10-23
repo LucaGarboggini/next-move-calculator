@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import type { AnalysisSettings } from '@/state'
 import { SearchSettings } from './SearchSettings'
 import { StoryAnalysis } from './StoryAnalysis'
 
@@ -7,8 +8,8 @@ const meta = {
   component: SearchSettings,
   parameters: { layout: 'centered' },
   decorators: [
-    (Story) => (
-      <StoryAnalysis>
+    (Story, { parameters }) => (
+      <StoryAnalysis settings={parameters.analysisSettings as Partial<AnalysisSettings>}>
         <div className="w-96 max-w-full">
           <Story />
         </div>
@@ -48,4 +49,21 @@ export const SingleThreaded: Story = {
       recommended: { threads: 1, hashMb: 64 },
     },
   },
+}
+
+const desktop = {
+  bounds: { maxThreads: 8, maxHashMb: 256 },
+  recommended: { threads: 7, hashMb: 64 },
+}
+
+/** Auto-move on: the best move is played when a search reaches its time or depth limit. */
+export const AutoMove: Story = {
+  args: { limits: desktop },
+  parameters: { analysisSettings: { autoMove: true } },
+}
+
+/** Auto-move on, but searching until stopped with no depth limit: it explains it needs a limit. */
+export const AutoMoveWithoutLimit: Story = {
+  args: { limits: desktop },
+  parameters: { analysisSettings: { autoMove: true, infinite: true, depth: null } },
 }

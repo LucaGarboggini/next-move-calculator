@@ -1,5 +1,6 @@
 import { act, render, renderHook, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import type { Move } from '@/core'
 import { i18n, setLocale } from '@/i18n'
 import {
   documentFen,
@@ -296,6 +297,117 @@ describe('AnalysisPanel', () => {
   })
 })
 
+describe('auto-move', () => {
+  const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+  const E4 = { from: 'e2', to: 'e4' } as const
+
+  /** Renders the panel, then sets auto-move (StoryAnalysis resets the settings when it renders). */
+  function renderPanel({ text, autoMove = true }: { text?: string; autoMove?: boolean } = {}) {
+    const engine = new FakeEngine()
+    render(
+      <StoryAnalysis engine={engine} {...(text && { text })}>
+        <AnalysisPanel />
+      </StoryAnalysis>,
+    )
+    act(() => useAnalysisSettings.getState().update({ autoMove }))
+    return { engine, user: userEvent.setup() }
+  }
+
+  /** The engine reports `move` as its best line, then ends the search the way it was told. */
+  async function engineAnswers(engine: FakeEngine, move: Move, reason: 'completed' | 'stopped') {
+    await act(async () => {
+      engine.latest.report({ pv: [move] })
+      engine.latest.end(reason, move)
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    })
+  }
+
+  it('is off by default: a finished search only shows its result', async () => {
+    const { engine, user } = renderPanel({ autoMove: false })
+    await user.click(screen.getByRole('button', { name: 'Calculate' }))
+    await engineAnswers(engine, E4, 'completed')
+    expect(fen()).toBe(START_FEN)
+    expect(screen.getByText('Done.')).toBeInTheDocument()
+    expect(screen.getByTestId('best-move')).toHaveTextContent('e4')
+  })
+
+  it('plays the best move when the search reaches its limit, as an undoable move', async () => {
+    const { engine, user } = renderPanel()
+    await user.click(screen.getByRole('button', { name: 'Calculate' }))
+    await engineAnswers(engine, E4, 'completed')
+
+    expect(fen()).toBe('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1')
+    expect(useEditorStore.getState().mode).toBe('play')
+    // The lines were for the old position: they are gone, and nothing recalculates by itself.
+    expect(session()).toMatchObject({ status: 'idle', result: undefined })
+    expect(screen.queryByTestId('best-move')).not.toBeInTheDocument()
+    expect(screen.queryAllByTestId('analysis-line')).toHaveLength(0)
+    expect(screen.getByRole('button', { name: 'Calculate' })).toBeEnabled()
+    expect(engine.searches).toHaveLength(1)
+
+    act(() => useEditorStore.getState().undo())
+    expect(fen()).toBe(START_FEN)
+    expect(engine.searches).toHaveLength(1)
+  })
+
+  it('never moves after Stop', async () => {
+    const { engine, user } = renderPanel()
+    await user.click(screen.getByRole('button', { name: 'Calculate' }))
+    await act(async () => {
+      engine.latest.report({ pv: [E4] })
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    })
+    await user.click(screen.getByRole('button', { name: 'Stop' }))
+    await engineAnswers(engine, E4, 'completed')
+    expect(fen()).toBe(START_FEN)
+    expect(screen.getByText('Stopped.')).toBeInTheDocument()
+    expect(screen.getByTestId('best-move')).toHaveTextContent('e4')
+  })
+
+  it('never moves after the position changed', async () => {
+    const { engine, user } = renderPanel()
+    await user.click(screen.getByRole('button', { name: 'Calculate' }))
+    act(() => useEditorStore.getState().setTurn('black'))
+    await engineAnswers(engine, E4, 'completed')
+    expect(fen()).toBe('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1')
+  })
+
+  it.each([
+    [
+      'castles',
+      '4k3/8/8/8/8/8/8/4K2R w K - 0 1',
+      { from: 'e1', to: 'g1' },
+      '4k3/8/8/8/8/8/8/5RK1 b - - 1 1',
+    ],
+    [
+      'castles long for Black',
+      'r3k3/8/8/8/8/8/8/4K3 b q - 0 1',
+      { from: 'e8', to: 'c8' },
+      '2kr4/8/8/8/8/8/8/4K3 w - - 1 2',
+    ],
+    [
+      'promotes',
+      'k7/4P3/8/8/8/8/8/K7 w - - 0 1',
+      { from: 'e7', to: 'e8', promotion: 'queen' },
+      'k3Q3/8/8/8/8/8/8/K7 b - - 0 1',
+    ],
+    // Underpromotion keeps the engine's piece, even with "always promote to a queen" on.
+    [
+      'underpromotes',
+      '8/4P1k1/3q4/8/8/8/7P/K7 w - - 0 1',
+      { from: 'e7', to: 'e8', promotion: 'knight' },
+      '4N3/6k1/3q4/8/8/8/7P/K7 b - - 0 1',
+    ],
+  ] as const)('%s', async (_name, text, move, after) => {
+    const { engine, user } = renderPanel({ text })
+    act(() => useSettings.getState().update({ autoQueen: true }))
+    await user.click(screen.getByRole('button', { name: 'Calculate' }))
+    await engineAnswers(engine, move, 'completed')
+    expect(fen()).toBe(after)
+    expect(screen.queryAllByTestId('analysis-line')).toHaveLength(0)
+  })
+})
+
 describe('useAnalysisArrows', () => {
   it('draws the best move strongly and the other lines faintly', () => {
     const { result } = renderHook(() => useAnalysisArrows(), {
@@ -398,12 +510,32 @@ describe('SearchSettings', () => {
     expect(screen.getByText('This browser runs the engine on a single thread.')).toBeInTheDocument()
   })
 
+  it('turns auto-move on and explains that it needs a time or depth limit', async () => {
+    const user = renderSettings()
+    const autoMove = screen.getByRole('switch', { name: 'Play the best move automatically' })
+    expect(autoMove).not.toBeChecked()
+    expect(autoMove).toHaveAccessibleDescription(en.settings.autoMove.hint)
+
+    await user.click(autoMove)
+    expect(useAnalysisSettings.getState().autoMove).toBe(true)
+
+    await user.click(screen.getByRole('switch', { name: 'Until stopped' }))
+    expect(autoMove).toHaveAccessibleDescription(en.settings.autoMove.needsLimit)
+    await user.type(screen.getByRole('spinbutton', { name: 'Depth limit' }), '20')
+    expect(autoMove).toHaveAccessibleDescription(en.settings.autoMove.hint)
+  })
+
   it('restores the defaults', async () => {
     const user = renderSettings()
     await user.click(screen.getByRole('radio', { name: '1 lines' }))
     await user.click(screen.getByRole('switch', { name: 'Until stopped' }))
+    await user.click(screen.getByRole('switch', { name: 'Play the best move automatically' }))
     await user.click(screen.getByRole('button', { name: 'Restore defaults' }))
-    expect(useAnalysisSettings.getState()).toMatchObject({ multiPv: 3, infinite: false })
+    expect(useAnalysisSettings.getState()).toMatchObject({
+      multiPv: 3,
+      infinite: false,
+      autoMove: false,
+    })
   })
 })
 

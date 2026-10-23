@@ -7,6 +7,7 @@ import {
   useEditorStore,
   useSettings,
   type AnalysisResult,
+  type AnalysisSettings,
   type AnalysisStatus,
 } from '@/state'
 import { AnalysisProvider } from './AnalysisProvider'
@@ -18,6 +19,8 @@ export interface StoryAnalysisProps {
   status?: AnalysisStatus
   result?: AnalysisResult
   error?: string
+  /** Search settings to start from, over the defaults. */
+  settings?: Partial<AnalysisSettings>
   /** Tests: the engine to drive by hand; stories get one that never computes. */
   engine?: FakeEngine
   children: ReactNode
@@ -32,13 +35,14 @@ export function StoryAnalysis({
   status,
   result,
   error,
+  settings,
   engine,
   children,
 }: StoryAnalysisProps) {
   useState(() => {
     resetEditorStore()
     if (text) useEditorStore.getState().load(text)
-    useAnalysisSettings.setState(DEFAULT_ANALYSIS_SETTINGS)
+    useAnalysisSettings.setState({ ...DEFAULT_ANALYSIS_SETTINGS, ...settings })
     useSettings.getState().reset()
     resetAnalysisSession({
       ...(status && { status }),

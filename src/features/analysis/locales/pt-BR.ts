@@ -69,6 +69,12 @@ export const ptBR: Widen<AnalysisMessages> = {
       placeholder: 'Sem limite',
       hint: 'A busca termina no limite de tempo ou de profundidade, o que vier primeiro.',
     },
+    autoMove: {
+      label: 'Jogar o melhor lance automaticamente',
+      hint: 'Quando o cálculo atinge o limite de tempo ou de profundidade. Parar nunca joga um lance.',
+      needsLimit:
+        'Precisa de um limite de tempo ou de profundidade: com “Até parar” e sem limite de profundidade, o cálculo só termina quando você toca em Parar, e Parar nunca joga um lance.',
+    },
     multiPv: {
       label: 'Linhas',
       option: '{{count}} linhas',
@@ -83,7 +89,8 @@ export const ptBR: Widen<AnalysisMessages> = {
     },
     singleThreaded: 'Este navegador executa o motor em uma única thread.',
     reset: 'Restaurar padrões',
-    appliesNext: 'As alterações valem a partir do próximo cálculo.',
+    appliesNext:
+      'O lance automático vale na hora; as outras alterações valem a partir do próximo cálculo.',
   },
   shortcuts: {
     group: 'Análise',

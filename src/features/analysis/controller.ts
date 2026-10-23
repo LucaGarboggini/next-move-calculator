@@ -1,4 +1,4 @@
-import { toWhiteScore, type Position } from '@/core'
+import { toWhiteScore, type Move, type Position } from '@/core'
 import type { BestMoveEvent, Engine, EngineSettings, Search, SearchInfo } from '@/engine'
 import { useAnalysisSession, type AnalysisLine, type AnalysisSettings } from '@/state'
 import { searchOptions } from './options'
@@ -21,6 +21,12 @@ interface Run {
 
 const now = (): number => performance.now()
 
+/** A search that reached its time or depth limit, and the move the engine settled on. */
+export interface Completion {
+  readonly position: Position
+  readonly move: Move
+}
+
 /**
  * Runs one search at a time on an `Engine` and publishes what it finds to the analysis session
  * store. Knows nothing about React.
@@ -31,6 +37,8 @@ const now = (): number => performance.now()
  * - Only the current run can write to the store. A run that was stopped, replaced or reset is
  *   detached on the spot, so a late event can never show a stale result.
  * - The engine is created on the first search and can be released with `dispose()` and recreated.
+ * - `onComplete` listeners hear about searches that ended by their limits, never about ones that
+ *   were stopped, paused, reset or replaced.
  */
 export class AnalysisController {
   private readonly createEngine: () => Engine
@@ -40,6 +48,7 @@ export class AnalysisController {
   private defaults: EngineSettings | undefined
   private unsubscribe: (() => void) | undefined
   private run: Run | undefined
+  private readonly completionListeners = new Set<(completion: Completion) => void>()
 
   constructor(createEngine: () => Engine, flushIntervalMs: number = FLUSH_INTERVAL_MS) {
     this.createEngine = createEngine
@@ -48,6 +57,15 @@ export class AnalysisController {
 
   get running(): boolean {
     return this.run !== undefined
+  }
+
+  /**
+   * Calls `listener` when a search reaches its limits with a best move, after the result is
+   * published. Returns the unsubscribe function.
+   */
+  onComplete(listener: (completion: Completion) => void): () => void {
+    this.completionListeners.add(listener)
+    return () => this.completionListeners.delete(listener)
   }
 
   /** Starts a search for `position`, replacing any search in flight. */
@@ -148,7 +166,7 @@ export class AnalysisController {
         if (event.type === 'info') this.accept(run, event.info)
         else {
           this.flush(run)
-          this.finish(event)
+          this.finish(run, event)
         }
       }
     } catch (error) {
@@ -158,15 +176,20 @@ export class AnalysisController {
     }
   }
 
-  private finish(event: BestMoveEvent): void {
+  private finish(run: Run, event: BestMoveEvent): void {
     // Superseded and disposed searches are replaced or abandoned by whoever ended them.
     if (event.reason === 'superseded' || event.reason === 'disposed') return
     this.detach()
     const session = useAnalysisSession.getState()
     if (event.reason === 'failed') {
       session.set({ status: 'error', error: event.error?.message ?? 'Engine failed' })
+    } else if (event.reason === 'stopped') {
+      session.set({ status: 'stopped' })
     } else {
-      session.set({ status: event.reason === 'stopped' ? 'stopped' : 'completed' })
+      session.set({ status: 'completed' })
+      if (!event.move) return
+      const completion: Completion = { position: run.position, move: event.move }
+      this.completionListeners.forEach((listener) => listener(completion))
     }
   }
 

@@ -66,6 +66,12 @@ export const en = {
       placeholder: 'No limit',
       hint: 'The search ends at the time or depth limit, whichever comes first.',
     },
+    autoMove: {
+      label: 'Play the best move automatically',
+      hint: 'When a calculation reaches its time or depth limit. Stop never plays a move.',
+      needsLimit:
+        'Needs a time or depth limit: with “Until stopped” and no depth limit, a calculation only ends when you press Stop, and Stop never plays a move.',
+    },
     multiPv: {
       label: 'Lines',
       option: '{{count}} lines',
@@ -80,7 +86,7 @@ export const en = {
     },
     singleThreaded: 'This browser runs the engine on a single thread.',
     reset: 'Restore defaults',
-    appliesNext: 'Changes apply to the next calculation.',
+    appliesNext: 'Auto-move takes effect at once; other changes apply to the next calculation.',
   },
   shortcuts: {
     group: 'Analysis',
