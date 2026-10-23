@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import type { BoardArrow } from '@/board'
-import type { Color, Position } from '@/core'
+import { opposite, type Color, type Position, type WhiteScore } from '@/core'
 import {
   detectCapabilities,
   engineBounds,
@@ -50,6 +50,21 @@ export function useCurrentResult(): AnalysisResult | undefined {
   const result = useAnalysisSession((s) => s.result)
   const fen = useEditorSnapshot().position?.fen
   return result && result.fen === fen ? result : undefined
+}
+
+/**
+ * What the eval bar shows for the position on the board: the best line's score, or, when the game
+ * on the board is over, its result (checkmate is a mate in 0, stalemate is level).
+ */
+export function useBoardEval(): WhiteScore | undefined {
+  const best = useCurrentResult()?.lines[0]?.score
+  const { position } = useEditorSnapshot()
+  if (best) return best
+  if (position?.status === 'checkmate') {
+    return { kind: 'mate', winner: opposite(position.turn), moves: 0 }
+  }
+  if (position?.status === 'stalemate') return { kind: 'cp', cp: 0 }
+  return undefined
 }
 
 export interface AnalysisApi {

@@ -27,11 +27,13 @@ export const en = {
     error: 'The engine failed: {{message}}',
   },
   eval: {
-    label: 'Evaluation, White’s point of view',
-    value: 'Evaluation {{value}}',
+    bar: 'Who’s winning',
+    summary: 'Evaluation {{value}}: {{advantage}}',
     whiteAhead: 'White is ahead',
     blackAhead: 'Black is ahead',
     equal: 'Equal',
+    whiteWon: 'White has won',
+    blackWon: 'Black has won',
     none: 'No evaluation yet',
   },
   best: {

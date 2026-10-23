@@ -1,4 +1,11 @@
-import { formatElapsed, formatNodes, formatSpeed, lineText, lineTokens } from './format'
+import {
+  advantageOf,
+  formatElapsed,
+  formatNodes,
+  formatSpeed,
+  lineText,
+  lineTokens,
+} from './format'
 
 describe('lineTokens', () => {
   it('numbers White moves, and a Black move that starts the line', () => {
@@ -50,5 +57,21 @@ describe('number formatting', () => {
     [600_000, '10:00'],
   ])('formats %d ms as %s', (ms, text) => {
     expect(formatElapsed(ms)).toBe(text)
+  })
+})
+
+describe('advantageOf', () => {
+  it.each([
+    [{ kind: 'cp', cp: 0 }, 'equal'],
+    [{ kind: 'cp', cp: 20 }, 'equal'],
+    [{ kind: 'cp', cp: -20 }, 'equal'],
+    [{ kind: 'cp', cp: 35 }, 'whiteAhead'],
+    [{ kind: 'cp', cp: -35 }, 'blackAhead'],
+    [{ kind: 'mate', winner: 'white', moves: 2 }, 'whiteAhead'],
+    [{ kind: 'mate', winner: 'black', moves: 5 }, 'blackAhead'],
+    [{ kind: 'mate', winner: 'white', moves: 0 }, 'whiteWon'],
+    [{ kind: 'mate', winner: 'black', moves: 0 }, 'blackWon'],
+  ] as const)('reads %j as %s', (score, advantage) => {
+    expect(advantageOf(score)).toBe(advantage)
   })
 })

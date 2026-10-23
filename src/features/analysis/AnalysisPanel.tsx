@@ -1,24 +1,16 @@
 import { Play, Square } from 'lucide-react'
-import { formatEval, formatMove, whiteShare, type WhiteScore } from '@/core'
+import { formatEval, formatMove } from '@/core'
 import { useTranslation } from '@/i18n'
 import { useSettings } from '@/state'
 import { Alert, AlertDescription, Button, Card, CardContent, CardHeader, CardTitle } from '@/ui'
 import { AnalysisLines } from './AnalysisLines'
 import { AnalysisStats } from './AnalysisStats'
-import { EvalBar } from './EvalBar'
+import { advantageOf } from './format'
 import { useAnalysis } from './hooks'
 import { ANALYSIS_NAMESPACE } from './i18n'
 import { usePlayLine } from './usePlayLine'
 
-/** Which side the eval favours, in words (the bar and number are not enough for everyone). */
-function advantage(score: WhiteScore): 'whiteAhead' | 'blackAhead' | 'equal' {
-  const share = whiteShare(score)
-  if (share > 0.52) return 'whiteAhead'
-  if (share < 0.48) return 'blackAhead'
-  return 'equal'
-}
-
-/** Calculate/Stop, the evaluation, the best move, search statistics and the engine's lines. */
+/** Calculate/Stop, the evaluation (the bar is beside the board), the best move, search statistics and the engine's lines. */
 export function AnalysisPanel() {
   const { t } = useTranslation(ANALYSIS_NAMESPACE)
   const { status, error, result, running, blocker, turn, calculate, stop } = useAnalysis()
@@ -64,19 +56,16 @@ export function AnalysisPanel() {
 
         {result && best && (
           <>
-            <div className="flex flex-col gap-2">
-              <div className="flex items-baseline justify-between gap-2">
-                <span
-                  data-testid="analysis-eval"
-                  className="font-mono text-2xl font-semibold tabular-nums"
-                >
-                  {formatEval(best.score)}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  {t(`eval.${advantage(best.score)}`)}
-                </span>
-              </div>
-              <EvalBar score={best.score} label={formatEval(best.score)} />
+            <div className="flex items-baseline justify-between gap-2">
+              <span
+                data-testid="analysis-eval"
+                className="font-mono text-2xl font-semibold tabular-nums"
+              >
+                {formatEval(best.score)}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                {t(`eval.${advantageOf(best.score)}`)}
+              </span>
             </div>
 
             <div className="flex items-center justify-between gap-2">

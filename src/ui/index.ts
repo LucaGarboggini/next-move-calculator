@@ -1,5 +1,6 @@
 // Public API of the design-system layer: primitives, layout, utilities. No chess logic.
 export { Alert, AlertDescription, AlertTitle, alertVariants } from './primitives/alert'
+export { BalanceBar, type BalanceBarProps } from './primitives/balance-bar'
 export { Badge, badgeVariants } from './primitives/badge'
 export { Button, buttonVariants } from './primitives/button'
 export {
@@ -70,6 +71,7 @@ export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './prim
 export { AppLayout, type AppLayoutProps } from './layout/AppLayout'
 export { AppHeader, type AppHeaderProps } from './layout/AppHeader'
 export { BoardFrame } from './layout/BoardFrame'
+export { BoardStage, type BoardStageProps } from './layout/BoardStage'
 export { cn } from './lib/utils'
 export {
   ShortcutList,

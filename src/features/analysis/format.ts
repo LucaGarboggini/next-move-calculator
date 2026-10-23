@@ -1,4 +1,4 @@
-import type { Color } from '@/core'
+import { whiteShare, type Color, type WhiteScore } from '@/core'
 
 /** One move of a line as shown: SAN, with its move number on White's moves and at the start. */
 export interface LineToken {
@@ -54,4 +54,16 @@ export function formatElapsed(ms: number): string {
   if (seconds < 60) return `${Math.round(seconds)} s`
   const whole = Math.floor(seconds)
   return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, '0')}`
+}
+
+/** Which side an evaluation favours, as an `eval.*` message key (the bar and number are not enough for everyone). */
+export type Advantage = 'whiteAhead' | 'blackAhead' | 'equal' | 'whiteWon' | 'blackWon'
+
+export function advantageOf(score: WhiteScore): Advantage {
+  if (score.kind === 'mate' && score.moves === 0)
+    return score.winner === 'white' ? 'whiteWon' : 'blackWon'
+  const share = whiteShare(score)
+  if (share > 0.52) return 'whiteAhead'
+  if (share < 0.48) return 'blackAhead'
+  return 'equal'
 }

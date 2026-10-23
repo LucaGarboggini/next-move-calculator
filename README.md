@@ -5,7 +5,7 @@ Open-source web app, inspired by nextchessmove.com: set up any chess position an
 ## Features
 
 - **Set up any position**: spare-piece palette, drag and drop, tap-to-place, eraser, side to move, castling rights, en passant; or paste a FEN or PGN. Illegal positions are shown with every reason and cannot be analyzed.
-- **Best moves, evaluation and lines** from Stockfish 19 running in a Web Worker: eval from White's point of view (`+0.35`, mates as `#3`), 1–5 lines, depth and time limits, arrows on the board, click any move to play it.
+- **Best moves, evaluation and lines** from Stockfish 19 running in a Web Worker: eval from White's point of view (`+0.35`, mates as `#3`), a who's-winning bar beside the board (above it on phones) that follows the board orientation, 1–5 lines, depth and time limits, arrows on the board, click any move to play it.
 - **Play moves** on the board (legal moves only), step through the move list, undo and redo, import and export PGN.
 - **Lite or Full engine**: Lite (~2 MB) by default; Full (~94 MB, strongest) is opt-in and cached after the first download. Threads and hash follow the device.
 - **Saved boards**, settings (language, theme, board colors, piece style, notation, auto-queen) and keyboard shortcuts, remembered in the browser with versioned migrations.
@@ -118,7 +118,7 @@ src/
 - `Setup` (editable, not-necessarily-legal position) with FEN parse/make and editing helpers; `validateSetup` lists every problem with a code and severity.
 - `Position` (legal, immutable): legal moves/destinations, `play`, SAN and UCI conversion, status (check, mate, stalemate, insufficient material).
 - `MoveHistory` with undo/redo, and PGN import/export.
-- `toWhiteScore` / `formatEval`: engine scores from White's point of view, mates as `#N`.
+- `toWhiteScore` / `formatEval` / `formatEvalCompact` / `whiteShare`: engine scores from White's point of view, mates as `#N`, a four-character form for the eval bar, and White's winning chance.
 
 See [ADR 0005](docs/adr/0005-chess-core-domain.md). Standard chess only.
 
@@ -153,12 +153,13 @@ See [ADR 0008](docs/adr/0008-engine-layer.md).
 
 ## Analysis
 
-`src/features/analysis/` registers two panels: **Analysis** (Calculate/Stop, evaluation from White's point of view as `+0.35` or `#3`, an eval bar, the best move, depth, speed, nodes and time, and the engine's lines in SAN) and **Search settings**. The best move is drawn on the board as an arrow, with fainter thin arrows for the other lines. Pick any move in a line, or the best move, to play it on the board (as one undo step).
+`src/features/analysis/` registers two panels: **Analysis** (Calculate/Stop, evaluation from White's point of view as `+0.35` or `#3`, the best move, depth, speed, nodes and time, and the engine's lines in SAN) and **Search settings**. The best move is drawn on the board as an arrow, with fainter thin arrows for the other lines. Pick any move in a line, or the best move, to play it on the board (as one undo step).
 
 - Limits: time 1–60 s or until stopped, optional depth (whichever is reached first ends the search), 1–5 lines. Threads and hash memory are offered within what the browser and device allow (no threads control without cross-origin isolation). Settings are remembered and apply to the next calculation.
 - Recalculating is manual: changing the position (or playing a move) clears the analysis and stops any search; press Calculate again. A search is stopped when the tab goes to the background and can be restarted.
 - Output is throttled to 10 updates a second so a phone stays smooth; the engine runs in a worker.
 - The board and the analysis meet only in `app/AnalysisBoard.tsx` (`EditorBoard` takes an `arrows` prop), because features do not import each other. See [ADR 0009](docs/adr/0009-analysis-feature.md).
+- **Who's winning bar** (`BoardEvalBar`): White's winning chance on lichess's curve, so small evals move it gently; a forced mate fills it, and it shows the eval in short (`+0.4`, `#3`). It sits in the `gauge` slot of `ui/BoardStage`, which composes it with the board in `app/AnalysisBoard.tsx`: vertical beside the board side by side, horizontal above it when stacked. White's part grows from the end of the side at the bottom of the board. It is a `meter` with the full eval as its text value. See [ADR 0018](docs/adr/0018-eval-bar-beside-the-board.md).
 
 ## Settings, shortcuts and saved boards
 
@@ -193,14 +194,14 @@ Every string goes through `useTranslation()`. Core strings are in `src/i18n/loca
 
 ## Quality
 
-- **Tests**: unit and component tests (Vitest, Testing Library), including the layer rules, design-token contrast and translations; end-to-end tests (Playwright) with the real engine on the production build across desktop Chromium/Firefox/WebKit, phone and tablet profiles — editor, castling (both sides, both colors, every input path), analysis, settings, saved boards, the full set-up → calculate → play → save flow, and a keyboard-only flow. Text-symbol pieces are measured on screenshots (centred on the board and in the palette) and compared with per-project visual snapshots; after an intended visual change run `npx playwright test e2e/glyph-pieces.spec.ts --update-snapshots` (Linux baselines come from CI, see ADR 0017).
+- **Tests**: unit and component tests (Vitest, Testing Library), including the layer rules, design-token contrast and translations; end-to-end tests (Playwright) with the real engine on the production build across desktop Chromium/Firefox/WebKit, phone and tablet profiles — editor, castling (both sides, both colors, every input path), analysis, the eval bar (placement, orientation, cp curve, mates), settings, saved boards, the full set-up → calculate → play → save flow, and a keyboard-only flow. Text-symbol pieces are measured on screenshots (centred on the board and in the palette) and compared with per-project visual snapshots; after an intended visual change run `npx playwright test e2e/glyph-pieces.spec.ts --update-snapshots` (Linux baselines come from CI, see ADR 0017).
 - **Accessibility**: axe (WCAG 2.x A/AA) runs on the built app in light, dark, pt-BR and with dialogs open; Tab order, focus indicators and focus return are tested. Rationale and the problems the pass found: [ADR 0012](docs/adr/0012-accessibility-verification.md).
-- **Performance**: the engine downloads on the first Calculate, never with the page; dialogs and the saved-boards panel load on demand; `npm run check:bundle` holds the initial load (currently ~214 kB gzip) under 250 kB. See [ADR 0011](docs/adr/0011-loading-performance.md).
+- **Performance**: the engine downloads on the first Calculate, never with the page; dialogs and the saved-boards panel load on demand; `npm run check:bundle` holds the initial load (currently ~215 kB gzip) under 250 kB. See [ADR 0011](docs/adr/0011-loading-performance.md).
 - **CI** (GitHub Actions): format, lint, typecheck, unit tests, build, bundle budget, Storybook build, and the e2e suite.
 
 ## Decisions
 
-Short ADRs in [`docs/adr/`](docs/adr/): [stack](docs/adr/0001-stack.md), [layers](docs/adr/0002-layered-architecture.md), [tokens and theming](docs/adr/0003-design-tokens-and-theming.md), [i18n](docs/adr/0004-i18n.md), [chess core](docs/adr/0005-chess-core-domain.md), [board](docs/adr/0006-board-layer.md), [editor](docs/adr/0007-position-editor.md), [engine](docs/adr/0008-engine-layer.md), [analysis](docs/adr/0009-analysis-feature.md), [settings and persistence](docs/adr/0010-settings-persistence-shortcuts.md), [loading performance](docs/adr/0011-loading-performance.md), [accessibility](docs/adr/0012-accessibility-verification.md), [local release and LAN](docs/adr/0013-local-release-and-lan.md), [single-threaded engine on WebKit](docs/adr/0014-single-threaded-engine-on-webkit.md), [castling in the editor](docs/adr/0015-castling-in-the-editor.md), [spare-piece palette input](docs/adr/0016-spare-piece-palette-input.md), [text-symbol pieces](docs/adr/0017-text-symbol-pieces.md).
+Short ADRs in [`docs/adr/`](docs/adr/): [stack](docs/adr/0001-stack.md), [layers](docs/adr/0002-layered-architecture.md), [tokens and theming](docs/adr/0003-design-tokens-and-theming.md), [i18n](docs/adr/0004-i18n.md), [chess core](docs/adr/0005-chess-core-domain.md), [board](docs/adr/0006-board-layer.md), [editor](docs/adr/0007-position-editor.md), [engine](docs/adr/0008-engine-layer.md), [analysis](docs/adr/0009-analysis-feature.md), [settings and persistence](docs/adr/0010-settings-persistence-shortcuts.md), [loading performance](docs/adr/0011-loading-performance.md), [accessibility](docs/adr/0012-accessibility-verification.md), [local release and LAN](docs/adr/0013-local-release-and-lan.md), [single-threaded engine on WebKit](docs/adr/0014-single-threaded-engine-on-webkit.md), [castling in the editor](docs/adr/0015-castling-in-the-editor.md), [spare-piece palette input](docs/adr/0016-spare-piece-palette-input.md), [text-symbol pieces](docs/adr/0017-text-symbol-pieces.md), [eval bar beside the board](docs/adr/0018-eval-bar-beside-the-board.md).
 
 ## Hosting requirements
 
