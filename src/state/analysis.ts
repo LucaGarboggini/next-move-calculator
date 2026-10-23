@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Color, Move, WhiteScore } from '@/core'
-import { createMerge } from './migrate'
+import { createMerge, createMigrate, type PersistedState } from './migrate'
 
 // --- Settings (persisted) ---------------------------------------------------------------------
 
@@ -10,7 +10,7 @@ export const DEPTH_RANGE = { min: 1, max: 99 } as const
 export const MULTI_PV_RANGE = { min: 1, max: 5 } as const
 
 export const ANALYSIS_SETTINGS_KEY = 'nmc-analysis'
-const VERSION = 1
+export const ANALYSIS_SETTINGS_VERSION = 2
 
 /** What the user asked of a search. `null` threads/hash mean "the device's recommended value". */
 export interface AnalysisSettings {
@@ -23,6 +23,8 @@ export interface AnalysisSettings {
   readonly multiPv: number
   readonly threads: number | null
   readonly hashMb: number | null
+  /** Play the best move when a search ends by its time or depth limit (never after Stop). */
+  readonly autoMove: boolean
 }
 
 export const DEFAULT_ANALYSIS_SETTINGS: AnalysisSettings = {
@@ -32,6 +34,7 @@ export const DEFAULT_ANALYSIS_SETTINGS: AnalysisSettings = {
   multiPv: 3,
   threads: null,
   hashMb: null,
+  autoMove: false,
 }
 
 const clampInt = (value: unknown, min: number, max: number, fallback: number): number =>
@@ -52,15 +55,20 @@ export function sanitizeAnalysisSettings(input: Partial<Record<keyof AnalysisSet
     multiPv: clampInt(input.multiPv, MULTI_PV_RANGE.min, MULTI_PV_RANGE.max, defaults.multiPv),
     threads: optionalInt(input.threads, 1, Number.MAX_SAFE_INTEGER),
     hashMb: optionalInt(input.hashMb, 1, Number.MAX_SAFE_INTEGER),
+    autoMove: typeof input.autoMove === 'boolean' ? input.autoMove : defaults.autoMove,
   }
   return settings
 }
 
 /** Upgrade persisted data from any older shape; unknown or corrupt data resets to defaults. */
-export function migrateAnalysisSettings(persisted: unknown): AnalysisSettings {
-  const stored = typeof persisted === 'object' && persisted !== null ? persisted : {}
-  return sanitizeAnalysisSettings(stored)
-}
+export const migrateAnalysisSettings = createMigrate({
+  version: ANALYSIS_SETTINGS_VERSION,
+  migrations: {
+    // v2 adds auto-move. Whoever had v1 never chose it, so it starts off.
+    1: (state: PersistedState) => ({ ...state, autoMove: false }),
+  },
+  sanitize: sanitizeAnalysisSettings,
+})
 
 interface AnalysisSettingsState extends AnalysisSettings {
   update: (patch: Partial<AnalysisSettings>) => void
@@ -74,6 +82,7 @@ const pickSettings = (state: AnalysisSettings): AnalysisSettings => ({
   multiPv: state.multiPv,
   threads: state.threads,
   hashMb: state.hashMb,
+  autoMove: state.autoMove,
 })
 
 export const useAnalysisSettings = create<AnalysisSettingsState>()(
@@ -86,7 +95,7 @@ export const useAnalysisSettings = create<AnalysisSettingsState>()(
     }),
     {
       name: ANALYSIS_SETTINGS_KEY,
-      version: VERSION,
+      version: ANALYSIS_SETTINGS_VERSION,
       partialize: pickSettings,
       migrate: migrateAnalysisSettings,
       merge: createMerge(sanitizeAnalysisSettings),

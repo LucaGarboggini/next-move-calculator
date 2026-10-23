@@ -1,5 +1,6 @@
 import {
   ANALYSIS_SETTINGS_KEY,
+  ANALYSIS_SETTINGS_VERSION,
   DEFAULT_ANALYSIS_SETTINGS,
   LOCALE_STORAGE_KEY,
   THEME_STORAGE_KEY,
@@ -85,6 +86,7 @@ describe('analysis settings', () => {
       multiPv: 3,
       threads: null,
       hashMb: null,
+      autoMove: false,
     })
   })
 
@@ -104,7 +106,7 @@ describe('analysis settings', () => {
       state: Record<string, unknown>
       version: number
     }
-    expect(stored.version).toBe(1)
+    expect(stored.version).toBe(ANALYSIS_SETTINGS_VERSION)
     expect(stored.state).toEqual({
       movetimeSec: 5,
       infinite: true,
@@ -112,25 +114,61 @@ describe('analysis settings', () => {
       multiPv: 2,
       threads: null,
       hashMb: null,
+      autoMove: false,
     })
   })
 
   it('migrates unknown or corrupt data to valid settings', () => {
-    expect(migrateAnalysisSettings({ multiPv: 4, depth: 20, extra: 1 })).toEqual({
+    expect(migrateAnalysisSettings({ multiPv: 4, depth: 20, extra: 1 }, 2)).toEqual({
       ...DEFAULT_ANALYSIS_SETTINGS,
       multiPv: 4,
       depth: 20,
     })
-    expect(migrateAnalysisSettings({ multiPv: 'many', movetimeSec: NaN, infinite: 'yes' })).toEqual(
-      DEFAULT_ANALYSIS_SETTINGS,
+    expect(
+      migrateAnalysisSettings({ multiPv: 'many', movetimeSec: NaN, infinite: 'yes' }, 2),
+    ).toEqual(DEFAULT_ANALYSIS_SETTINGS)
+    expect(migrateAnalysisSettings(null, 2)).toEqual(DEFAULT_ANALYSIS_SETTINGS)
+  })
+
+  it('upgrades version 1 data: everything kept, auto-move off', async () => {
+    expect(
+      migrateAnalysisSettings({ movetimeSec: 9, depth: 20, multiPv: 1, autoMove: true }, 1),
+    ).toEqual({ ...DEFAULT_ANALYSIS_SETTINGS, movetimeSec: 9, depth: 20, multiPv: 1 })
+
+    localStorage.setItem(
+      ANALYSIS_SETTINGS_KEY,
+      JSON.stringify({
+        version: 1,
+        state: { movetimeSec: 9, infinite: true, depth: 20, multiPv: 1, threads: 2, hashMb: 32 },
+      }),
     )
-    expect(migrateAnalysisSettings(null)).toEqual(DEFAULT_ANALYSIS_SETTINGS)
+    await useAnalysisSettings.persist.rehydrate()
+    expect(useAnalysisSettings.getState()).toMatchObject({
+      movetimeSec: 9,
+      infinite: true,
+      depth: 20,
+      multiPv: 1,
+      threads: 2,
+      hashMb: 32,
+      autoMove: false,
+    })
+  })
+
+  it('remembers auto-move', () => {
+    useAnalysisSettings.getState().update({ autoMove: true })
+    const stored = JSON.parse(localStorage.getItem(ANALYSIS_SETTINGS_KEY) ?? '{}') as {
+      state: Record<string, unknown>
+    }
+    expect(stored.state.autoMove).toBe(true)
   })
 
   it('repairs corrupt values saved under the current version', async () => {
     localStorage.setItem(
       ANALYSIS_SETTINGS_KEY,
-      JSON.stringify({ version: 1, state: { multiPv: 'many', depth: 20, movetimeSec: 999 } }),
+      JSON.stringify({
+        version: ANALYSIS_SETTINGS_VERSION,
+        state: { multiPv: 'many', depth: 20, movetimeSec: 999 },
+      }),
     )
     await useAnalysisSettings.persist.rehydrate()
     expect(useAnalysisSettings.getState()).toMatchObject({
