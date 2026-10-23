@@ -33,7 +33,10 @@ import {
 import './styles/board.css'
 
 export interface BoardHandle {
-  /** Edit mode: start dragging a new piece (e.g. from a palette) onto the board. */
+  /**
+   * Edit mode: start dragging a new piece (e.g. from a palette) onto the board. The board owns
+   * the gesture from here on; use `useSparePieceDrag` so that taps on the palette stay clicks.
+   */
   dragNewPiece(piece: Piece, event: MouseEvent | TouchEvent): void
 }
 

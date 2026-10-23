@@ -3,6 +3,7 @@
 export { Board, type BoardHandle, type BoardProps } from './Board'
 export { PieceIcon, type PieceIconProps } from './PieceIcon'
 export { PromotionPicker, type PromotionPickerProps } from './PromotionPicker'
+export { useSparePieceDrag, type SparePieceDragHandlers } from './spare-piece'
 export { createChessgroundView } from './chessground-adapter'
 export {
   DEFAULT_VIEW_STATE,
