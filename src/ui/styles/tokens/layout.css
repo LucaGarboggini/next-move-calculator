@@ -9,6 +9,10 @@
   --layout-gap: 1rem;
   --layout-panel-width: clamp(18rem, 40vw, 26rem);
   --layout-board-max: 44rem;
+  /* Gauge next to the board (the eval bar): thickness beside it, thickness above it, gap. */
+  --layout-gauge: 2.25rem;
+  --layout-gauge-compact: 1.5rem;
+  --layout-gauge-gap: 0.5rem;
 }
 
 @media (pointer: coarse) {

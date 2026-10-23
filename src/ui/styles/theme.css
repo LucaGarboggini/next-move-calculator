@@ -82,6 +82,10 @@
   --spacing-control-sm: var(--control-sm);
   --spacing-control-md: var(--control-md);
   --spacing-control-lg: var(--control-lg);
+  /* w-gauge, h-gauge-compact, gap-gauge-gap */
+  --spacing-gauge: var(--layout-gauge);
+  --spacing-gauge-compact: var(--layout-gauge-compact);
+  --spacing-gauge-gap: var(--layout-gauge-gap);
 
   --container-panel: var(--layout-panel-width);
   --container-board: var(--layout-board-max);
@@ -124,10 +128,16 @@
   transition-duration: var(--motion-duration-slow);
 }
 
-/* Largest square that fits the nearest size container (the board area). */
+/* Largest square that fits the nearest size container (the board area), less
+ * --board-fit-inset of its width (room for something beside the board). */
 @utility board-fit {
-  width: min(100cqw, 100cqh, var(--layout-board-max));
+  width: min(calc(100cqw - var(--board-fit-inset, 0px)), 100cqh, var(--layout-board-max));
   aspect-ratio: 1;
+}
+
+/* Leaves room for a gauge beside the board: board-fit subtracts it. */
+@utility board-fit-gauge {
+  --board-fit-inset: calc(var(--layout-gauge) + var(--layout-gauge-gap));
 }
 
 /* Enlarges the pointer hit area of small controls to the touch minimum on
