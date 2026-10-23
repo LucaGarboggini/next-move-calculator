@@ -57,6 +57,7 @@ If the tablet cannot connect, check the computer's firewall and that both device
 | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `npm run dev` / `preview`               | Dev / production-preview server (both send COOP/COEP)                                                                                                                    |
 | `npm run engine:fetch`                  | Copy the Stockfish builds into `public/engine/` (runs on install, dev and build)                                                                                         |
+| `npm run fonts:glyphs`                  | Rebuild the committed chess-symbol font for the text-symbol piece theme (ADR 0017)                                                                                       |
 | `npm run build`                         | Typecheck and build the static bundle into `dist/`                                                                                                                       |
 | `npm run check:bundle`                  | Fails if the initial load of `dist/` is over the 250 kB gzip budget or loads the engine with the page                                                                    |
 | `npm run preview:lan`                   | Preview over HTTPS (self-signed) for a secure context on other devices                                                                                                   |
@@ -144,7 +145,7 @@ See [ADR 0008](docs/adr/0008-engine-layer.md).
 
 ## Board
 
-`src/board/` exports `Board` (React), `PieceIcon`, `PromotionPicker` and the `BoardView` interface; chessground is used only in `chessground-adapter.ts`. The board is controlled and has three modes: `view`, `play` (legal moves from core's `Position.destinations()`, promotion picker included) and `edit` (free moves, drag off to delete, tap-to-place `EditTool`, palette drag via the `ref` and `useSparePieceDrag`, which keeps a tap on a spare piece a tap on every input). Arrows and highlights are props. It works with touch, mouse, pen and keyboard (arrows, Enter/Space, Escape, Delete) and announces moves to screen readers. Board themes (`green`, `brown`, `blue`) are token sets; piece themes (`classic`, `glyph`) are CSS. See [ADR 0006](docs/adr/0006-board-layer.md). Every mode has a Storybook story (`board/Board`).
+`src/board/` exports `Board` (React), `PieceIcon`, `PromotionPicker` and the `BoardView` interface; chessground is used only in `chessground-adapter.ts`. The board is controlled and has three modes: `view`, `play` (legal moves from core's `Position.destinations()`, promotion picker included) and `edit` (free moves, drag off to delete, tap-to-place `EditTool`, palette drag via the `ref` and `useSparePieceDrag`, which keeps a tap on a spare piece a tap on every input). Arrows and highlights are props. It works with touch, mouse, pen and keyboard (arrows, Enter/Space, Escape, Delete) and announces moves to screen readers. Board themes (`green`, `brown`, `blue`) are token sets; piece themes (`classic`, `glyph`) are CSS. The text-symbol (`glyph`) theme draws from a bundled font whose glyphs are centred in the em box, so they are centred on every browser ([ADR 0017](docs/adr/0017-text-symbol-pieces.md)). See [ADR 0006](docs/adr/0006-board-layer.md). Every mode has a Storybook story (`board/Board`).
 
 ## Position editor
 
@@ -192,14 +193,14 @@ Every string goes through `useTranslation()`. Core strings are in `src/i18n/loca
 
 ## Quality
 
-- **Tests**: unit and component tests (Vitest, Testing Library), including the layer rules, design-token contrast and translations; end-to-end tests (Playwright) with the real engine on the production build across desktop Chromium/Firefox/WebKit, phone and tablet profiles — editor, castling (both sides, both colors, every input path), analysis, settings, saved boards, the full set-up → calculate → play → save flow, and a keyboard-only flow.
+- **Tests**: unit and component tests (Vitest, Testing Library), including the layer rules, design-token contrast and translations; end-to-end tests (Playwright) with the real engine on the production build across desktop Chromium/Firefox/WebKit, phone and tablet profiles — editor, castling (both sides, both colors, every input path), analysis, settings, saved boards, the full set-up → calculate → play → save flow, and a keyboard-only flow. Text-symbol pieces are measured on screenshots (centred on the board and in the palette) and compared with per-project visual snapshots; after an intended visual change run `npx playwright test e2e/glyph-pieces.spec.ts --update-snapshots` (Linux baselines come from CI, see ADR 0017).
 - **Accessibility**: axe (WCAG 2.x A/AA) runs on the built app in light, dark, pt-BR and with dialogs open; Tab order, focus indicators and focus return are tested. Rationale and the problems the pass found: [ADR 0012](docs/adr/0012-accessibility-verification.md).
-- **Performance**: the engine downloads on the first Calculate, never with the page; dialogs and the saved-boards panel load on demand; `npm run check:bundle` holds the initial load (currently ~212 kB gzip) under 250 kB. See [ADR 0011](docs/adr/0011-loading-performance.md).
+- **Performance**: the engine downloads on the first Calculate, never with the page; dialogs and the saved-boards panel load on demand; `npm run check:bundle` holds the initial load (currently ~214 kB gzip) under 250 kB. See [ADR 0011](docs/adr/0011-loading-performance.md).
 - **CI** (GitHub Actions): format, lint, typecheck, unit tests, build, bundle budget, Storybook build, and the e2e suite.
 
 ## Decisions
 
-Short ADRs in [`docs/adr/`](docs/adr/): [stack](docs/adr/0001-stack.md), [layers](docs/adr/0002-layered-architecture.md), [tokens and theming](docs/adr/0003-design-tokens-and-theming.md), [i18n](docs/adr/0004-i18n.md), [chess core](docs/adr/0005-chess-core-domain.md), [board](docs/adr/0006-board-layer.md), [editor](docs/adr/0007-position-editor.md), [engine](docs/adr/0008-engine-layer.md), [analysis](docs/adr/0009-analysis-feature.md), [settings and persistence](docs/adr/0010-settings-persistence-shortcuts.md), [loading performance](docs/adr/0011-loading-performance.md), [accessibility](docs/adr/0012-accessibility-verification.md), [local release and LAN](docs/adr/0013-local-release-and-lan.md), [single-threaded engine on WebKit](docs/adr/0014-single-threaded-engine-on-webkit.md), [castling in the editor](docs/adr/0015-castling-in-the-editor.md), [spare-piece palette input](docs/adr/0016-spare-piece-palette-input.md).
+Short ADRs in [`docs/adr/`](docs/adr/): [stack](docs/adr/0001-stack.md), [layers](docs/adr/0002-layered-architecture.md), [tokens and theming](docs/adr/0003-design-tokens-and-theming.md), [i18n](docs/adr/0004-i18n.md), [chess core](docs/adr/0005-chess-core-domain.md), [board](docs/adr/0006-board-layer.md), [editor](docs/adr/0007-position-editor.md), [engine](docs/adr/0008-engine-layer.md), [analysis](docs/adr/0009-analysis-feature.md), [settings and persistence](docs/adr/0010-settings-persistence-shortcuts.md), [loading performance](docs/adr/0011-loading-performance.md), [accessibility](docs/adr/0012-accessibility-verification.md), [local release and LAN](docs/adr/0013-local-release-and-lan.md), [single-threaded engine on WebKit](docs/adr/0014-single-threaded-engine-on-webkit.md), [castling in the editor](docs/adr/0015-castling-in-the-editor.md), [spare-piece palette input](docs/adr/0016-spare-piece-palette-input.md), [text-symbol pieces](docs/adr/0017-text-symbol-pieces.md).
 
 ## Hosting requirements
 
@@ -214,6 +215,7 @@ Without these the app falls back to single-threaded mode (Safari and iOS always 
 
 - **HTTPS** (or `localhost`): cross-origin isolation, Cache Storage (Full engine cache) and the clipboard need a secure context.
 - Serve `engine/*.wasm` as `application/wasm` (up to ~99 MB per file; Full builds are in `dist/engine/`) and `engine/*.js`; allow same-origin blob workers.
+- Serve `assets/*.otf` as `font/otf` (the text-symbol piece font).
 - Serve `index.html` without long caching (assets under `assets/` are content-hashed and can be cached forever).
 - Everything is a same-origin static file: no server code, no CORS, no third-party origins (a CDN would also need `Cross-Origin-Resource-Policy`).
 
@@ -221,4 +223,4 @@ Hosting itself is out of scope for the first release.
 
 ## License
 
-[GPL-3.0](LICENSE)
+[GPL-3.0](LICENSE). The classic piece sprites are cburnett (GPL-2.0-or-later); the text-symbol piece font is derived from Noto Sans Symbols 2 ([OFL-1.1](src/board/styles/pieces/glyph/OFL.txt)).
