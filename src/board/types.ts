@@ -68,8 +68,12 @@ export const DEFAULT_VIEW_STATE: BoardViewState = {
 export interface BoardViewEvents {
   /** `play` mode: the user dropped a piece on a legal destination (promotion not chosen yet). */
   onMove?: (move: Pick<Move, 'from' | 'to'>) => void
-  /** `edit` mode: the pieces on the board changed because of the user. */
-  onEdit?: (pieces: BoardPieces) => void
+  /**
+   * `edit` mode: the pieces on the board changed because of the user. `move` is set when one
+   * piece was moved from square to square (not for drops, tools or dragging a piece off), so the
+   * host can apply rules such as castling; the board itself never moves a second piece.
+   */
+  onEdit?: (pieces: BoardPieces, move?: Pick<Move, 'from' | 'to'>) => void
   /** Any mode but `view`: the user selected a square. */
   onSquareSelect?: (square: Square) => void
 }

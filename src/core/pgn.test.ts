@@ -45,6 +45,21 @@ describe('parsePgn', () => {
     expect(castle?.move).toEqual({ from: 'e1', to: 'c1' })
   })
 
+  it.each([
+    ['1. d4 d5 2. Nc3 Nc6 3. Bf4 Bf5 4. Qd2 Qd7 5. O-O-O O-O-O *', 'c'],
+    ['1. d4 d5 2. Nc3 Nc6 3. Bf4 Bf5 4. Qd2 Qd7 5. 0-0-0 0-0-0 *', 'c'],
+    ['1. e4 e5 2. Nf3 Nf6 3. Bc4 Bc5 4. O-O O-O *', 'g'],
+    ['1. e4 e5 2. Nf3 Nf6 3. Bc4 Bc5 4. 0-0 0-0 *', 'g'],
+  ])('reads castling for both colors: %s', (pgn, file) => {
+    const result = parsePgn(pgn)
+    if (!result.ok) throw new Error(result.error[0]?.message)
+    const [white, black] = result.value.history.entries.slice(-2)
+    expect(white?.move).toEqual({ from: 'e1', to: `${file}1` })
+    expect(black?.move).toEqual({ from: 'e8', to: `${file}8` })
+    expect(white?.san).toBe(file === 'c' ? 'O-O-O' : 'O-O')
+    expect(black?.san).toBe(white?.san)
+  })
+
   it('starts from the FEN header', () => {
     const pgn = `[SetUp "1"]\n[FEN "4k3/8/8/8/8/8/4P3/4K3 w - - 0 1"]\n\n1. e4 Kd7 *`
     const result = parsePgn(pgn)

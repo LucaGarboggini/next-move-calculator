@@ -200,7 +200,26 @@ describe('chessground adapter', () => {
       expect(pieces?.a7).toEqual({ color: 'white', role: 'rook' })
     })
 
-    it('does not auto-castle when a king moves two files', () => {
+    it('reports the move with the new pieces when a piece is moved on the board', () => {
+      const onEdit = vi.fn<NonNullable<BoardViewEvents['onEdit']>>()
+      const board = mount({ mode: 'edit' }, { onEdit })
+      board.activateSquare('e1')
+      flush()
+      board.activateSquare('c1')
+      flush()
+      expect(onEdit).toHaveBeenCalledOnce()
+      expect(onEdit.mock.calls[0]?.[1]).toEqual({ from: 'e1', to: 'c1' })
+    })
+
+    it('reports no move for tool edits', () => {
+      const onEdit = vi.fn<NonNullable<BoardViewEvents['onEdit']>>()
+      const board = mount({ mode: 'edit', editTool: { kind: 'erase' } }, { onEdit })
+      board.activateSquare('e2')
+      flush()
+      expect(onEdit.mock.calls[0]?.[1]).toBeUndefined()
+    })
+
+    it('leaves castling to the host: a king moved two files is just a king', () => {
       const onEdit = vi.fn<(pieces: BoardPieces) => void>()
       const pieces = {
         e1: { color: 'white', role: 'king' },

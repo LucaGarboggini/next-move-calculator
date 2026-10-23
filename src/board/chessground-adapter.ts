@@ -111,10 +111,14 @@ function toConfig(state: BoardViewState): Config {
 export const createChessgroundView: BoardViewFactory = (element, initial, events) => {
   let state: BoardViewState = { ...DEFAULT_VIEW_STATE, ...initial }
   let lastKey = piecesKey(state.pieces)
+  // The piece move behind the next edit, if any: chessground reports it before the change.
+  let editMove: { from: Square; to: Square } | undefined
 
   // Chessground reports changes asynchronously, so programmatic updates are told apart from
   // user edits by comparing against the last pieces we showed or reported.
   const emitEdit = (cg: Api) => {
+    const move = editMove
+    editMove = undefined
     if (state.mode !== 'edit') return
     const pieces = piecesFromEntries(
       [...cg.state.pieces].filter(([key]) => isSquare(key)).map(([k, p]) => [k, p]),
@@ -122,7 +126,7 @@ export const createChessgroundView: BoardViewFactory = (element, initial, events
     const key = piecesKey(pieces)
     if (key === lastKey) return
     lastKey = key
-    events.onEdit?.(pieces)
+    events.onEdit?.(pieces, move)
   }
 
   const applyTool = (cg: Api, square: Square) => {
@@ -139,6 +143,11 @@ export const createChessgroundView: BoardViewFactory = (element, initial, events
     // Chessground only creates the drag ghost if dragging is enabled at start-up.
     draggable: { ...initialConfig.draggable, enabled: true },
     events: {
+      move: (orig, dest) => {
+        if (state.mode === 'edit' && isSquare(orig) && isSquare(dest)) {
+          editMove = { from: orig, to: dest }
+        }
+      },
       change: () => emitEdit(cg),
       dropNewPiece: () => emitEdit(cg),
       select: (key) => {

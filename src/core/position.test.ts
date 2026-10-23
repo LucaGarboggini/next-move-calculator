@@ -127,6 +127,48 @@ describe('moves', () => {
     })
   })
 
+  describe('every castling, both sides for both colors', () => {
+    const CASTLINGS = [
+      ['w', 'e1c1', 'O-O-O', 'r3k2r/8/8/8/8/8/8/2KR3R b kq - 1 1'],
+      ['w', 'e1g1', 'O-O', 'r3k2r/8/8/8/8/8/8/R4RK1 b kq - 1 1'],
+      ['b', 'e8c8', 'O-O-O', '2kr3r/8/8/8/8/8/8/R3K2R w KQ - 1 2'],
+      ['b', 'e8g8', 'O-O', 'r4rk1/8/8/8/8/8/8/R3K2R w KQ - 1 2'],
+    ] as const
+    const at = (turn: 'w' | 'b') => fromFen(`r3k2r/8/8/8/8/8/8/R3K2R ${turn} KQkq - 0 1`)
+
+    it.each(CASTLINGS)(
+      '%s %s: offered, written %s, parsed and played',
+      (turn, move, san, after) => {
+        const position = at(turn)
+        expect(position.destinations().get(uci(move).from)).toContain(uci(move).to)
+        expect(position.san(uci(move))).toBe(san)
+        expect(position.parseSan(san)).toEqual(uci(move))
+        expect(play(position, move).fen).toBe(after)
+      },
+    )
+
+    it.each(CASTLINGS)('%s %s: an engine line starting with it reads as %s', (turn, move, san) => {
+      // Engines (UCI_Chess960 off) send castling as the king's two-square move.
+      expect(at(turn).lineToSan([uci(move)])).toEqual([san])
+    })
+
+    it('follows the castling rights of the FEN', () => {
+      const position = fromFen('r3k2r/8/8/8/8/8/8/R3K2R w Qk - 0 1')
+      expect(position.isLegal(uci('e1c1'))).toBe(true)
+      expect(position.isLegal(uci('e1g1'))).toBe(false)
+      const black = play(position, 'e1c1')
+      expect(black.isLegal(uci('e8g8'))).toBe(true)
+      expect(black.isLegal(uci('e8c8'))).toBe(false)
+      expect(fromFen('r3k2r/8/8/8/8/8/8/R3K2R w - - 0 1').isLegal(uci('e1c1'))).toBe(false)
+    })
+
+    it('queen-side castling is legal with b1 attacked, but not through d1 or into c1', () => {
+      expect(fromFen('1r2k3/8/8/8/8/8/8/R3K3 w Q - 0 1').isLegal(uci('e1c1'))).toBe(true)
+      expect(fromFen('3rk3/8/8/8/8/8/8/R3K3 w Q - 0 1').isLegal(uci('e1c1'))).toBe(false)
+      expect(fromFen('2r1k3/8/8/8/8/8/8/R3K3 w Q - 0 1').isLegal(uci('e1c1'))).toBe(false)
+    })
+  })
+
   it('handles en passant', () => {
     const position = fromFen('4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1')
     expect(position.isLegal(uci('e5d6'))).toBe(true)

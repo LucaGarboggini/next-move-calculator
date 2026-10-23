@@ -5,7 +5,9 @@ import {
   candidateEpSquares,
   emptySetup,
   makeFen,
+  movePiece,
   parseFen,
+  placePieces,
   sanitizeSetup,
   setCastlingRight,
   setEpSquare,
@@ -104,5 +106,53 @@ describe('editing helpers', () => {
   it('sanitizeSetup drops impossible castling rights and en passant squares', () => {
     const messy = setEpSquare(parsed('4k3/8/8/8/8/8/8/4K2R w KQkq - 0 1'), 'a6')
     expect(makeFen(sanitizeSetup(messy))).toBe('4k3/8/8/8/8/8/8/4K2R w K - 0 1')
+  })
+})
+
+describe('moving pieces in the editor', () => {
+  const CASTLING = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1'
+
+  it.each([
+    ['e1', 'c1', 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/2KR3R w kq - 0 1'],
+    ['e1', 'g1', 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R4RK1 w kq - 0 1'],
+    ['e8', 'c8', '2kr3r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQ - 0 1'],
+    ['e8', 'g8', 'r4rk1/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQ - 0 1'],
+  ] as const)(
+    'castles %s-%s when the right allows it, using up that color’s rights',
+    (from, to, fen) => {
+      expect(makeFen(movePiece(parsed(CASTLING), from, to))).toBe(fen)
+    },
+  )
+
+  it('does not castle without the right, or with a piece in between', () => {
+    expect(makeFen(movePiece(parsed('4k3/8/8/8/8/8/8/R3K2R w K - 0 1'), 'e1', 'c1'))).toBe(
+      '4k3/8/8/8/8/8/8/R1K4R w - - 0 1',
+    )
+    expect(makeFen(movePiece(parsed('4k3/8/8/8/8/8/8/RN2K2R w KQ - 0 1'), 'e1', 'c1'))).toBe(
+      '4k3/8/8/8/8/8/8/RNK4R w - - 0 1',
+    )
+  })
+
+  it('moves any other piece anywhere, replacing what is there', () => {
+    expect(makeFen(movePiece(startingSetup(), 'd1', 'd7'))).toBe(
+      'rnbqkbnr/pppQpppp/8/8/8/8/PPPPPPPP/RNB1KBNR w KQkq - 0 1',
+    )
+    expect(movePiece(startingSetup(), 'e4', 'e5')).toEqual(startingSetup())
+  })
+
+  it('drops the castling rights the moved pieces can no longer hold', () => {
+    expect(makeFen(movePiece(startingSetup(), 'a1', 'a3'))).toBe(
+      'rnbqkbnr/pppppppp/8/8/8/R7/PPPPPPPP/1NBQKBNR w Kkq - 0 1',
+    )
+    expect(makeFen(movePiece(startingSetup(), 'e8', 'e6'))).toBe(
+      'rnbq1bnr/pppppppp/4k3/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1',
+    )
+  })
+
+  it('placePieces keeps only the castling rights the new pieces can hold', () => {
+    const { pieces } = setPiece(startingSetup(), 'a1', undefined)
+    expect(makeFen(placePieces(startingSetup(), pieces))).toBe(
+      'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/1NBQKBNR w Kkq - 0 1',
+    )
   })
 })
