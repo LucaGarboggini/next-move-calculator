@@ -1,7 +1,8 @@
 /* Piece themes, selected with [data-piece-theme="<name>"] on an ancestor of the
  * board. `classic` uses SVG sprites (cburnett, GPL-2.0-or-later; the same set
- * bundled with chessground); `glyph` draws Unicode chess symbols colored by the
- * --piece-* tokens. Add a theme by adding a block here and its id in themes.ts. */
+ * bundled with chessground); `glyph` draws Unicode chess symbols from a bundled
+ * font, colored by the --piece-* tokens. Add a theme by adding a block here and
+ * its id in themes.ts. */
 
 /* Size of one piece, so themes that draw text can scale with the board. */
 .cg-wrap piece {
@@ -47,16 +48,37 @@
 }
 
 /* ---- glyph ---- */
+/* Chess symbols from Noto Sans Symbols 2 (OFL-1.1), built by scripts/build-glyph-font.mjs:
+ * each glyph's ink is centred in its em box and the line metrics equal the em, so with
+ * `line-height: 1` the glyph box is the em box and flex centring centres the ink, whatever
+ * the browser or platform. `block` keeps fallback fonts (with other metrics) off the board
+ * while the font loads. */
+@font-face {
+  font-family: 'Chess Glyphs';
+  src: url('./pieces/glyph/chess-glyphs.otf') format('opentype');
+  font-display: block;
+}
+
 [data-piece-theme='glyph'] piece {
   display: flex;
   align-items: center;
   justify-content: center;
   background-image: none;
-  font-family: system-ui, sans-serif;
-  font-size: calc(var(--piece-size) * 1.05);
+  font-family: 'Chess Glyphs';
+  font-size: var(--piece-size);
+  font-style: normal;
+  font-weight: normal;
+  font-synthesis: none;
+  font-variant-emoji: text;
   line-height: 1;
   -webkit-text-stroke: calc(var(--piece-size) * 0.03) var(--piece-glyph-outline);
   paint-order: stroke fill;
+}
+
+[data-piece-theme='glyph'] piece::before {
+  display: block;
+  width: 1em;
+  height: 1em;
 }
 
 [data-piece-theme='glyph'] piece.white {
@@ -68,7 +90,8 @@
   -webkit-text-stroke-color: var(--piece-glyph-white);
 }
 
-/* U+FE0E forces text presentation, so platforms do not swap in color emoji. */
+/* U+FE0E asks for text presentation, so platforms (notably iOS) do not swap in color emoji;
+ * the bundled font maps it to an empty glyph, so the whole sequence stays in that font. */
 [data-piece-theme='glyph'] piece.king::before {
   content: '\265A\FE0E';
 }
