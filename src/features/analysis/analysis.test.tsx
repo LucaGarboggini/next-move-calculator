@@ -73,7 +73,8 @@ describe('AnalysisPanel', () => {
     expect(screen.getByText('Calculating…')).toBeInTheDocument()
     expect(screen.getByTestId('best-move')).toHaveTextContent('Ra8#')
     expect(screen.getByTestId('analysis-eval')).toHaveTextContent('#1')
-    expect(screen.getByRole('img', { name: 'Evaluation #1' })).toBeInTheDocument()
+    // The eval bar is beside the board, not in the panel.
+    expect(screen.queryByRole('meter')).not.toBeInTheDocument()
     expect(screen.getByTestId('analysis-stats')).toHaveTextContent('800k n/s')
     expect(screen.getAllByTestId('analysis-line')).toHaveLength(1)
 

@@ -30,11 +30,13 @@ export const ptBR: Widen<AnalysisMessages> = {
     error: 'O motor falhou: {{message}}',
   },
   eval: {
-    label: 'Avaliação, do ponto de vista das brancas',
-    value: 'Avaliação {{value}}',
+    bar: 'Quem está ganhando',
+    summary: 'Avaliação {{value}}: {{advantage}}',
     whiteAhead: 'As brancas estão melhor',
     blackAhead: 'As pretas estão melhor',
     equal: 'Igual',
+    whiteWon: 'As brancas venceram',
+    blackWon: 'As pretas venceram',
     none: 'Ainda sem avaliação',
   },
   best: {

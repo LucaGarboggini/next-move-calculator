@@ -1,36 +1,63 @@
-import { whiteShare, type WhiteScore } from '@/core'
+import { formatEval, formatEvalCompact, whiteShare, type Color, type WhiteScore } from '@/core'
 import { useTranslation } from '@/i18n'
-import { cn } from '@/ui'
+import { useEditorStore } from '@/state'
+import { BalanceBar, type BalanceBarProps } from '@/ui'
+import { advantageOf } from './format'
+import { useBoardEval } from './hooks'
 import { ANALYSIS_NAMESPACE } from './i18n'
 
 export interface EvalBarProps {
   /** Evaluation from White's point of view; the bar is level while there is none. */
   score?: WhiteScore
-  /** Spoken value, e.g. "+0.35" (the visible number is shown next to the bar). */
-  label?: string
+  /** The side at the bottom of the board. White's part grows from that side's end. */
+  orientation?: Color
+  /** `responsive`: above the board when stacked, beside it side by side. */
+  axis?: BalanceBarProps['axis']
   className?: string
 }
 
-/** White's share of the bar grows with White's advantage; a forced mate fills it completely. */
-export function EvalBar({ score, label, className }: EvalBarProps) {
+/**
+ * Who's winning: White's share is White's winning chance on lichess's curve, so small evals move
+ * it gently, and a forced mate fills it. Shows the eval in short; screen readers get it in full,
+ * with which side is ahead.
+ */
+export function EvalBar({
+  score,
+  orientation = 'white',
+  axis = 'responsive',
+  className,
+}: EvalBarProps) {
   const { t } = useTranslation(ANALYSIS_NAMESPACE)
   const share = score ? whiteShare(score) : 0.5
   return (
-    <div
-      role="img"
-      aria-label={label ? t('eval.value', { value: label }) : t('eval.none')}
-      data-slot="eval-bar"
-      className={cn(
-        'relative h-3 w-full overflow-hidden rounded-full border border-border bg-eval-black',
-        className,
-      )}
-    >
-      <div
-        data-slot="eval-bar-white"
-        className="h-full bg-eval-white transition-[width] motion-base ease-standard motion-reduce:transition-none"
-        style={{ width: `${(share * 100).toFixed(1)}%` }}
-      />
-      <div aria-hidden="true" className="absolute inset-y-0 left-1/2 w-px bg-border" />
-    </div>
+    <BalanceBar
+      role="meter"
+      aria-label={t('eval.bar')}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(share * 100)}
+      aria-valuetext={
+        score
+          ? t('eval.summary', {
+              value: formatEval(score),
+              advantage: t(`eval.${advantageOf(score)}`),
+            })
+          : t('eval.none')
+      }
+      data-testid="eval-bar"
+      data-orientation={orientation}
+      value={share}
+      from={orientation === 'white' ? 'start' : 'end'}
+      axis={axis}
+      label={score && formatEvalCompact(score)}
+      className={className}
+    />
   )
+}
+
+/** The bar for the position on the board, oriented like the board. `app/` puts it next to the board. */
+export function BoardEvalBar() {
+  const score = useBoardEval()
+  const orientation = useEditorStore((s) => s.orientation)
+  return <EvalBar score={score} orientation={orientation} />
 }
