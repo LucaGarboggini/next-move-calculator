@@ -34,6 +34,19 @@ export function formatEval(score: WhiteScore): string {
   return `${pawns > 0 ? '+' : '-'}${Math.abs(pawns).toFixed(2)}`
 }
 
+/**
+ * At most four characters, for a narrow eval bar: "+0.4", "-3.2", "+12", "0.0"; mates and results
+ * as in `formatEval` ("#3", "#-3", "1-0").
+ */
+export function formatEvalCompact(score: WhiteScore): string {
+  if (score.kind === 'mate') return formatEval(score)
+  const tenths = Math.round(score.cp / 10)
+  if (tenths === 0) return '0.0'
+  const sign = tenths > 0 ? '+' : '-'
+  const abs = Math.abs(tenths)
+  return abs < 100 ? `${sign}${(abs / 10).toFixed(1)}` : `${sign}${Math.round(abs / 10)}`
+}
+
 /** Steepness of the centipawn-to-win-chance curve (the one lichess uses for its eval bar). */
 const SHARE_STEEPNESS = 0.00368208
 
