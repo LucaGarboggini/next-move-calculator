@@ -62,6 +62,37 @@ describe('Palette', () => {
     await user.click(screen.getByRole('button', { name: 'Move pieces' }))
     expect(useEditorStore.getState().tool).toBeNull()
   })
+
+  it('says in words which tool is selected and what a tap on the board does', async () => {
+    const user = userEvent.setup()
+    render(
+      <StoryDocument>
+        <Palette />
+      </StoryDocument>,
+    )
+    const status = within(screen.getByRole('region', { name: 'Pieces' })).getByRole('status')
+    expect(status).toHaveTextContent(en.palette.hint)
+
+    await user.click(screen.getByRole('button', { name: 'black knight' }))
+    expect(status).toHaveTextContent(/^Placing black knight: tap squares/)
+
+    await user.click(screen.getByRole('button', { name: 'Erase pieces' }))
+    expect(status).toHaveTextContent(en.palette.erasing)
+
+    await user.click(screen.getByRole('button', { name: 'Move pieces' }))
+    expect(status).toHaveTextContent(en.palette.hint)
+  })
+
+  it('names the selected piece in Portuguese', async () => {
+    await setLocale('pt-BR')
+    try {
+      expect(i18n.t('palette.placing', { ns: EDITOR_NAMESPACE, piece: 'dama branca' })).toMatch(
+        /^Colocando dama branca: toque nas casas/,
+      )
+    } finally {
+      await setLocale('en')
+    }
+  })
 })
 
 describe('Actions', () => {

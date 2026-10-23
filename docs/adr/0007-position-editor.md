@@ -14,7 +14,7 @@ Users must be able to build or paste any legal position, see why an illegal one 
 - **Export is exact.** The FEN box shows `makeFen(setup)`, which writes castling and en passant as set; parse then write returns the same string (property-tested over played games). Turning the side to move clears the en passant square; castling rights that the pieces cannot hold cannot be switched on but can be switched off. Moving pieces in the editor castles and drops rights the pieces can no longer hold (ADR 0015).
 - **Input is detected, not chosen.** `importText` in core reads a FEN (first token contains `/`) or a PGN. Pasting into an unedited box loads at once; typed text loads with the button or Ctrl/Cmd+Enter.
 - **Play mode** reuses the board's `play` mode with `Position.destinations()`; it is disabled while the position is illegal.
-- **Slots.** The board and palette share the board's `dragNewPiece` handle through `EditorProvider` (a React context holding a ref). Panels are registered in `app/panels/defaults.ts`; the shell is unchanged apart from its panels no longer shrinking.
+- **Slots.** The board and palette share the board's `dragNewPiece` handle through `EditorProvider` (a React context holding a ref); the palette starts drags with `useSparePieceDrag` (ADR 0016). Panels are registered in `app/panels/defaults.ts`; the shell is unchanged apart from its panels no longer shrinking.
 - **Strings.** The feature registers its own `editor` i18n namespace; issue messages are translated by issue code with a fallback to core's English message (a test requires every code in both locales).
 
 ## Consequences

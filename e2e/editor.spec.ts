@@ -157,7 +157,7 @@ test.describe('position editor', () => {
   })
 
   test('drags a spare piece onto the board and a piece off it', async ({ page, hasTouch }) => {
-    test.skip(hasTouch, 'dragging is covered with a mouse; touch uses the tap tools above')
+    test.skip(hasTouch, 'touch dragging is covered in palette.spec.ts')
     await page.getByRole('button', { name: 'Clear board' }).click()
     const box = (await board(page).boundingBox())!
     const center = (square: string) => ({
@@ -171,6 +171,11 @@ test.describe('position editor', () => {
     await page.mouse.move(center('d4').x, center('d4').y, { steps: 8 })
     await page.mouse.up()
     await expect(fenBox(page)).toHaveValue('8/8/8/8/3Q4/8/8/8 w - - 0 1')
+    // Dragging places a copy; it does not pick the piece for clicks.
+    await expect(page.getByRole('button', { name: 'white queen' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    )
 
     // Drop a piece outside the board to remove it.
     await page.getByRole('button', { name: 'Move pieces' }).click()
